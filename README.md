@@ -45,3 +45,16 @@ The driver supports several options:
     * How the metric is named
 * *Proxy factory*: implements `ProxyFactory`, can configure how JDBC elements are wrapped (simple `java.lang.reflect.Proxy` or CGLib base proxies).
 * *Registry holder*: implements `MetricRegistryHolder`, can configure how the metric registry is resolved.
+
+## Integration
+
+### JMX
+
+The `JmxReporter` doesn't play with `DefaultMetricNamingStrategy`, you'll have to change either the naming strategy or the object name factory. A `SqlObjectNameFactory` is provided:
+
+```java
+JmxReporter.forRegistry(metricRegistry)
+    .registerWith(mBeanServer)
+    .createsObjectNamesWith(new SqlObjectNameFactory())
+    .build();
+```
