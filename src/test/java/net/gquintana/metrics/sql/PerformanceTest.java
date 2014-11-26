@@ -5,23 +5,19 @@
 package net.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collection;
-import javax.sql.DataSource;
-import net.gquintana.metrics.proxy.CGLibProxyFactory;
 import net.gquintana.metrics.proxy.AbstractProxyFactory;
+import net.gquintana.metrics.proxy.CGLibProxyFactory;
 import net.gquintana.metrics.proxy.ReflectProxyFactory;
+import net.gquintana.metrics.util.ParametersBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.Collection;
 
 /**
  * Performance test

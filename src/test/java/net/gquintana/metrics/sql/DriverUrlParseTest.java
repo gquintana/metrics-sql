@@ -3,12 +3,16 @@
  */
 package net.gquintana.metrics.sql;
 
-import java.util.Collection;
-import java.util.Properties;
+import net.gquintana.metrics.util.ParametersBuilder;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Collection;
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test driver URL parsing

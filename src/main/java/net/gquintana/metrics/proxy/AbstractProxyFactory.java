@@ -14,7 +14,7 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
      * @param interfaces Interfaces to implement
      * @return Proxy
      */
-    public Object newProxy(ProxyHandler<?> proxyHandler, ClassLoader classLoader, Class<?>... interfaces) {
+    public <X> X newProxy(ProxyHandler<X> proxyHandler, ClassLoader classLoader, Class<?>... interfaces) {
         return newProxy(proxyHandler, new ProxyClass(classLoader, interfaces));
     }
 
@@ -25,7 +25,7 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
      * @param interfaces Interfaces to implement
      * @return Proxy
      */
-    public Object newProxy(ProxyHandler<?> proxyHandler, Class<?>... interfaces) {
+    public <X> X newProxy(ProxyHandler<X> proxyHandler, Class<?>... interfaces) {
         return newProxy(proxyHandler, Thread.currentThread().getContextClassLoader(), interfaces);
     }
 

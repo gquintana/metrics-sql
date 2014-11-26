@@ -1,7 +1,7 @@
 package net.gquintana.metrics.proxy;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
 
 /**
  * Proxy method invocation
@@ -51,7 +51,11 @@ public final class MethodInvocation<T> {
     }
 
     public Object proceed() throws Throwable {
-        return method.invoke(delegate, args);
+        try {
+            return method.invoke(delegate, args);
+        } catch(InvocationTargetException e) {
+            throw e.getTargetException();
+        }
     }
 
 }

@@ -2,7 +2,7 @@
  * Default License
  */
 
-package net.gquintana.metrics.sql;
+package net.gquintana.metrics.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
