@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- *
+ * Integration test between {@link CGLibProxyFactory} and {@link JdbcProxyFactory}
  */
 public class CGLibProxyFactoryTest {
     private MetricRegistry metricRegistry;
@@ -22,7 +22,9 @@ public class CGLibProxyFactoryTest {
     public void setUp() {
         metricRegistry = new MetricRegistry();
         CGLibProxyFactory factory = new CGLibProxyFactory();
-        proxyFactory = new JdbcProxyFactory(new DefaultMetricNamingStrategy(metricRegistry), factory);
+        proxyFactory = MetricsSql.forRegistry(metricRegistry)
+                .withProxyFactory(factory)
+                .build();
     }
     @Test
     public void testConnectionLife() throws SQLException {

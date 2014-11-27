@@ -59,7 +59,7 @@ public class JdbcProxyFactory {
      * @param namingStrategy Naming strategy used to get metrics from SQL
      * @param proxyFactory AbstractProxyFactory to use for proxy creation
      */
-    public JdbcProxyFactory(MetricNamingStrategy namingStrategy, AbstractProxyFactory proxyFactory) {
+    public JdbcProxyFactory(MetricNamingStrategy namingStrategy, ProxyFactory proxyFactory) {
         this.metricNamingStrategy = namingStrategy;
         this.proxyFactory = proxyFactory;
     }

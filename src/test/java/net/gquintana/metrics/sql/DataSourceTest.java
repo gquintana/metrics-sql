@@ -22,13 +22,12 @@ import org.junit.Test;
  */
 public class DataSourceTest {
     private MetricRegistry metricRegistry;
-    private JdbcProxyFactory proxyFactory;
     private DataSource dataSource;
     @Before
     public void setUp() {
         metricRegistry = new MetricRegistry();
-        proxyFactory = new JdbcProxyFactory(metricRegistry);
-        dataSource = proxyFactory.wrapDataSource("test", H2DbUtil.createDataSource());
+        dataSource = MetricsSql.forRegistry(metricRegistry)
+                .wrap("test", H2DbUtil.createDataSource());
     }
     @After
     public void tearDown() {
@@ -48,7 +47,7 @@ public class DataSourceTest {
     @Test
     public void testConnectionStatement() throws SQLException {
         // Act
-        Connection connection = proxyFactory.wrapConnection("test", H2DbUtil.openConnection());
+        Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         PreparedStatement preparedStatement = connection.prepareCall("select 1 from dual");
         H2DbUtil.close(preparedStatement, statement, connection);

@@ -12,7 +12,8 @@ Wrap your existing DataSource using JdbcProxyFactory:
 
 ```java
     metricRegistry = new MetricRegistry();
-    dataSource = new JdbcProxyFactory(metricRegistry).wrapDataSource("test", existingDataSource);
+    dataSource = MetricsSql.forRegistry(metricRegistry)
+                    .wrap("mysql", mysqlDataSource);
 ```
 
 ### Connection level
@@ -20,7 +21,8 @@ Wrap your existing DataSource using JdbcProxyFactory:
 Same as DataSource
 ```java
     metricRegistry = new MetricRegistry();
-    connection = new JdbcProxyFactory(metricRegistry).wrapDataSource("test", existingConnection);
+    connection = MetricsSql.forRegistry(metricRegistry)
+                    .wrap("mysql", mysqlConnection);
 ```
 
 ### Driver level

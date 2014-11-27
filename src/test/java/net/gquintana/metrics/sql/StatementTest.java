@@ -7,7 +7,6 @@ package net.gquintana.metrics.sql;
 import com.codahale.metrics.MetricRegistry;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;

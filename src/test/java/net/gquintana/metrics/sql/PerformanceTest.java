@@ -43,7 +43,8 @@ public class PerformanceTest {
     @Before
     public void setUp() throws SQLException {
         metricRegistry = new MetricRegistry();
-        proxyFactory = new JdbcProxyFactory(new DefaultMetricNamingStrategy(metricRegistry), factory);
+        proxyFactory = MetricsSql.forRegistry(metricRegistry)
+                .withProxyFactory(factory).build();
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
