@@ -18,6 +18,7 @@ import org.junit.runners.Parameterized;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Collection;
+import net.gquintana.metrics.proxy.CachingProxyFactory;
 
 /**
  * Performance test
@@ -38,6 +39,7 @@ public class PerformanceTest {
         return new ParametersBuilder()
                 .add(new ReflectProxyFactory())
                 .add(new CGLibProxyFactory())
+                .add(new CachingProxyFactory())
                 .build();
     }
     @Before

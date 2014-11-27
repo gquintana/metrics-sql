@@ -47,6 +47,7 @@ public class ProxyFactoryTest {
 		return new ParametersBuilder()
 				.add(new ReflectProxyFactory())
 				.add(new CGLibProxyFactory())
+				.add(new CachingProxyFactory())
 				.build();
 	}
 

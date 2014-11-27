@@ -4,6 +4,9 @@
 
 package net.gquintana.metrics.proxy;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -49,5 +52,20 @@ public final class ProxyClass {
     public int hashCode() {
         return hashCode;
     }
-
+    /**
+     * Create proxy class
+     */
+    public Class createClass() {
+        return Proxy.getProxyClass(getClassLoader(), getInterfaces());
+    }
+    /**
+     * Create proxy constructor
+     */
+    public Constructor createConstructor() {
+        try {
+            return createClass().getConstructor(InvocationHandler.class);
+        } catch (NoSuchMethodException noSuchMethodException) {
+            throw new ProxyException(noSuchMethodException);
+        }
+    }
 }
