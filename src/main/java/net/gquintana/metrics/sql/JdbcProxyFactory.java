@@ -17,7 +17,6 @@ import javax.sql.rowset.FilteredRowSet;
 import javax.sql.rowset.JdbcRowSet;
 import javax.sql.rowset.JoinRowSet;
 import javax.sql.rowset.WebRowSet;
-import net.gquintana.metrics.proxy.AbstractProxyFactory;
 import net.gquintana.metrics.proxy.ProxyFactory;
 import net.gquintana.metrics.proxy.ReflectProxyFactory;
 
@@ -164,7 +163,13 @@ public class JdbcProxyFactory {
      */
     public PreparedStatement wrapPreparedStatement(String connectionFactoryName, PreparedStatement preparedStatement, String sql) {
         StatementTimerContext lifeTimerContext = metricNamingStrategy.startPreparedStatementTimer(connectionFactoryName, sql, null);
-        return newProxy(new PreparedStatementProxyHandler(preparedStatement, connectionFactoryName, this, lifeTimerContext.getTimerContext(), lifeTimerContext.getSql(), lifeTimerContext.getSqlId()));
+        PreparedStatementProxyHandler proxyHandler;
+        if (lifeTimerContext==null) {
+            proxyHandler = new PreparedStatementProxyHandler(preparedStatement, connectionFactoryName, this, null, sql, null);
+        } else {
+            proxyHandler = new PreparedStatementProxyHandler(preparedStatement, connectionFactoryName, this, lifeTimerContext.getTimerContext(), lifeTimerContext.getSql(), lifeTimerContext.getSqlId());
+        }
+        return newProxy(proxyHandler);
     }
     /**
      * Start timer measuring {@link PreparedStatement#execute() }
@@ -187,7 +192,13 @@ public class JdbcProxyFactory {
      */
     public CallableStatement wrapCallableStatement(String connectionFactoryName, CallableStatement callableStatement, String sql) {
         StatementTimerContext lifeTimerContext = metricNamingStrategy.startCallableStatementTimer(connectionFactoryName, sql, null);
-        return newProxy(new CallableStatementProxyHandler(callableStatement, connectionFactoryName, this, lifeTimerContext.getTimerContext(), lifeTimerContext.getSql(), lifeTimerContext.getSqlId()));
+        CallableStatementProxyHandler proxyHandler;
+        if (lifeTimerContext==null) {
+            proxyHandler = new CallableStatementProxyHandler(callableStatement, connectionFactoryName, this, null, sql, null);
+        } else {
+            proxyHandler = new CallableStatementProxyHandler(callableStatement, connectionFactoryName, this, lifeTimerContext.getTimerContext(), lifeTimerContext.getSql(), lifeTimerContext.getSqlId());
+        }
+        return newProxy(proxyHandler);
     }
     /**
      * Start timer measuring {@link CallableStatement#execute() }
