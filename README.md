@@ -19,6 +19,7 @@ Wrap your existing DataSource using JdbcProxyFactory:
 ### Connection level
 
 Same as DataSource
+
 ```java
     metricRegistry = new MetricRegistry();
     connection = MetricsSql.forRegistry(metricRegistry)
@@ -27,18 +28,24 @@ Same as DataSource
 
 ### Driver level
 
-1. Register Metrics SQL JDBC Driver
+1. Register Metrics SQL JDBC Driver: replace the original JDBC driver by `net.gquintana.metrics.sql.Driver`
 2. Change JDBC URL prefix: jdbc:xxx becomes jdbc:metrics:xxx
 
-Example: `jdbc:metrics:mysql://localhost:3306/sakila?profileSQL=true`
+Examples:
+
+```
+jdbc:metrics:mysql://localhost:3306/sakila?profileSQL=true&metrics_name=sakila`
+jdbc:metrics:postgresql://localhost/demo?metrics_driver=org.postgresql.Driver&ssl=true
+jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE;metrics_driver=org.h2.Driver;metrics_proxy_factory=caching
+```
 
 The driver supports several options:
 
-* metrics_driver: Real JDBC Driver class
-* metrics_proxy_factory: Proxy factory implementation (Default: ReflectProxyFactory; Available: reflect, cglib; Possible: any class implementing ProxyFactory)
-* metrics_naming_strategy: Naming strategy implementation (Default: DefaultMetricNamingStrategy, Possible: any class implementing MetricNamingStrategy)
-* metrics_registry_holder: Registry holder (Default: StaticMetricRegistryHolder; Possible: any class implementing MetricRegistryHolder)
-* metrics_name: Metrics name (Default: xxx_driver, Possible: any string)
+* `metrics_driver`: the real driver class to wrap
+* `metrics_name`: the database name uses in metrics name: defaults to xxx_driver
+* `metrics_registry_holder`: the strategy used to locate the Metric registry: class name implementing `MetricRegistryHolder`, defaults to `StaticMetricRegistryHolder`
+* `metrics_naming_strategy`: the strategy used to generate what shoud be metered and the timer names: class name implementing `MetricNamingStrategy`
+* `metrics_proxy_factory`: the strategy used to create proxies: either `reflect` (the default), `cglib` or `caching`, 
 
 ## Configuration
 
@@ -49,6 +56,22 @@ The driver supports several options:
 * *Registry holder*: implements `MetricRegistryHolder`, can configure how the metric registry is resolved.
 
 ## Integration
+
+### Unprepared statement with unbound parameters
+
+Beware of using unprepared statements and unbound parameters, it will generate a lot of metrics. For instance ...:
+
+```
+Statement statement = connection.createStatement();
+statement.execute("insert into METRICS(ID, NAME) values(1, 'One')");
+statement.execute("insert into METRICS(ID, NAME) values(2, 'Two')");
+```
+... will generate 2 metrics!
+
+There are several options:
+* Use prepared statements and bound parameters
+* Tune the naming strategy to either filter unprepared statements
+* Tune the naming strategy to make both SQL statements generate the same metric name
 
 ### JMX
 
