@@ -49,7 +49,6 @@ public class H2DbUtil {
         config.setPassword(PASSWORD);
         config.setMaximumPoolSize(5);
         config.setMinimumIdle(3);
-        config.setIdleTimeout(10000L);
         
         HikariDataSource dataSource = new HikariDataSource(config);
         return dataSource;
