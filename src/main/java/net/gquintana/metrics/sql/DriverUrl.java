@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.gquintana.metrics.proxy.CGLibProxyFactory;
 import net.gquintana.metrics.proxy.AbstractProxyFactory;
+import net.gquintana.metrics.proxy.CachingProxyFactory;
 import net.gquintana.metrics.proxy.ReflectProxyFactory;
 import net.gquintana.metrics.util.MetricRegistryHolder;
 import net.gquintana.metrics.util.StaticMetricRegistryHolder;
@@ -127,6 +128,8 @@ public class DriverUrl {
             factoryClass = ReflectProxyFactory.class;
         } else if (s.equalsIgnoreCase("cglib")) {
             factoryClass = CGLibProxyFactory.class;
+        } else if (s.equalsIgnoreCase("caching")) {
+            factoryClass = CachingProxyFactory.class;
         } else {
             factoryClass = getProperty("metrics_proxy_factory", Class.class);
         }
