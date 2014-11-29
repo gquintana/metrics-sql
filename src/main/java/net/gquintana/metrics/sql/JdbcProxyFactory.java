@@ -21,8 +21,7 @@ import net.gquintana.metrics.proxy.ProxyFactory;
 import net.gquintana.metrics.proxy.ReflectProxyFactory;
 
 /**
- * Factory of {@code JdbcProxyHandler} sub classes, central class of the JDBC
- * module.
+ * Factory of {@code JdbcProxyHandler} sub classes, central class of Metrics SQL.
  * It can be used to wrap any JDBC component (connection, statement,
  * result set...). 
  */

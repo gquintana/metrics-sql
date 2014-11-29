@@ -3,13 +3,12 @@ package net.gquintana.metrics.sql;
 import com.codahale.metrics.Timer;
 import net.gquintana.metrics.proxy.ProxyHandler;
 import net.gquintana.metrics.proxy.MethodInvocation;
-import net.gquintana.metrics.proxy.AbstractProxyFactory;
 import java.sql.SQLException;
 import java.sql.Wrapper;
 import net.gquintana.metrics.proxy.ProxyClass;
 
 /**
- * Base class for all JDBC Proxy factories.
+ * Base class for all JDBC Proxy handlers.
  * 
  * @param <T> Proxied type
  */
@@ -39,7 +38,7 @@ public abstract class JdbcProxyHandler<T> extends ProxyHandler<T> {
      * @param delegateType JDBC object interface
      * @param name Proxy name
      * @param proxyFactory Parent factory
-     * @param lifeTimerContext Proxy life split
+     * @param lifeTimerContext Proxy life timer context
      */
     protected JdbcProxyHandler(T delegate, Class<T> delegateType, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
         super(delegate);
@@ -67,8 +66,10 @@ public abstract class JdbcProxyHandler<T> extends ProxyHandler<T> {
         return methodInvocation.proceed();
     }
 
-    protected final void stopTimer(Timer.Context split) {
-        split.stop();
+    protected final void stopTimer(Timer.Context timerContext) {
+        if (timerContext != null) {
+            timerContext.stop();
+        }
     }
 
     protected Object unwrap(MethodInvocation<T> methodInvocation) throws SQLException {

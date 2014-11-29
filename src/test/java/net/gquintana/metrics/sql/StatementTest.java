@@ -12,8 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import javax.sql.DataSource;
 import org.junit.After;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,7 +64,24 @@ public class StatementTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Statement.test.[select * from metrics_test].exec"));
+        assertEquals(1, metricRegistry.getTimers().get("java.sql.Statement.test.[select * from metrics_test].exec").getCount());
+        
+    }
+    @Test
+    public void testStatementExec_SQLException() throws SQLException {
+        // Act
+        Connection connection = dataSource.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = null;
+        try {
+            resultSet = statement.executeQuery("select * from UNKNOWN_TABLE");
+            fail("SQL Exception expected");
+        } catch (SQLException sQLException) {
+        }
+        
+        H2DbUtil.close(resultSet, statement, connection);
+        // Assert
+        assertEquals(0, metricRegistry.getTimers().get("java.sql.Statement.test.[select * from unknown_table].exec").getCount());
         
     }
 }

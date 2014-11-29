@@ -13,6 +13,7 @@ public class StatementProxyHandler extends AbstractStatementProxyHandler<Stateme
         super(delegate, Statement.class, name, proxyFactory, lifeTimerContext);
     }
 
+    @Override
     protected Object execute(MethodInvocation<Statement> methodInvocation) throws Throwable {
         Object result;
         if (methodInvocation.getArgCount() > 0) {

@@ -10,5 +10,9 @@ import com.codahale.metrics.MetricRegistry;
  * Metric registry locator
  */
 public interface MetricRegistryHolder {
-    public MetricRegistry getMetricRegistry();
+    /**
+     * Get metric registry
+     * @return Metric registry
+     */
+    MetricRegistry getMetricRegistry();
 }

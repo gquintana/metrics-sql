@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CGLibProxyFactory extends AbstractProxyFactory {
 
     private final Map<ProxyClass, Class> proxyClasses = new ConcurrentHashMap<ProxyClass, Class>();
-    public static final Class[] ADAPTER_CALLBACK_TYPES = new Class[]{
+    private static final Class[] ADAPTER_CALLBACK_TYPES = new Class[]{
         AdapterMethodInterceptor.class,
         AdapterLazyLoader.class
     };

@@ -5,7 +5,6 @@
 package net.gquintana.metrics.sql;
 
 import com.codahale.metrics.Timer;
-import java.sql.ResultSet;
 
 /**
  * {@link Timer.Context} and SQL Id couple

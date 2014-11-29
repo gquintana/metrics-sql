@@ -12,16 +12,16 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
-import net.gquintana.metrics.proxy.AbstractProxyFactory;
+import net.gquintana.metrics.proxy.ProxyFactory;
 import net.gquintana.metrics.util.MetricRegistryHolder;
 
 /**
- *
+ * Metrics SQL JDBC Driver
  */
 public class Driver implements java.sql.Driver {    
     private static final Driver INSTANCE = new Driver();
     private static boolean registered = false;
-    private final java.util.logging.Logger parentLogger = java.util.logging.Logger.getLogger("net.gquintana.metrics");
+    private final Logger parentLogger = Logger.getLogger("net.gquintana.metrics");
     static {
         register();
     }
@@ -71,7 +71,7 @@ public class Driver implements java.sql.Driver {
         // Open connection
         Connection rawConnection=DriverManager.getConnection(driverUrl.getCleanUrl(), info);
         // Wrap connection
-        AbstractProxyFactory factory = newInstance(driverUrl.getProxyFactoryClass());
+        ProxyFactory factory = newInstance(driverUrl.getProxyFactoryClass());
         MetricRegistryHolder registryHolder = newInstance(driverUrl.getRegistryHolderClass());
         MetricNamingStrategy namingStrategy = newInstance(driverUrl.getNamingStrategyClass(), registryHolder);
         JdbcProxyFactory proxyFactory = new JdbcProxyFactory(namingStrategy, factory);
