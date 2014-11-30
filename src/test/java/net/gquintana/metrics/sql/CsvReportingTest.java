@@ -20,8 +20,12 @@ package net.gquintana.metrics.sql;
  * #L%
  */
 
+import com.codahale.metrics.CsvReporter;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -29,29 +33,41 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
 import javax.management.MBeanServer;
 import net.gquintana.metrics.util.SqlObjectNameFactory;
+import static org.hamcrest.CoreMatchers.hasItems;
+import org.junit.Assert;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 /**
- * Test the integration betwen Metric SQL and the JMX Reporter
+ * Test the integration between Metrics SQL and the CSV Reporter
  */
-public class JmxReportingTest {
+public class CsvReportingTest {
     private MBeanServer mBeanServer;
     private MetricRegistry metricRegistry;
     private JdbcProxyFactory proxyFactory;
     private DataSource rawDataSource;
     private DataSource dataSource;
-    private JmxReporter jmxReporter;
-
+    private CsvReporter csvReporter;
+    @Rule
+    public TemporaryFolder tmpFolderRule = new TemporaryFolder();
+    private File csvFolder;
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() throws SQLException, IOException {
+        csvFolder = tmpFolderRule.newFolder("csv");
         mBeanServer=ManagementFactory.getPlatformMBeanServer();
         metricRegistry = new MetricRegistry();
-        jmxReporter = JmxReporter.forRegistry(metricRegistry)
-                .registerWith(mBeanServer)
-                .createsObjectNamesWith(new SqlObjectNameFactory())
-                .build();
-        jmxReporter.start();
+        csvReporter = CsvReporter.forRegistry(metricRegistry)
+                .build(csvFolder);
         proxyFactory = new JdbcProxyFactory(metricRegistry);
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
@@ -61,7 +77,6 @@ public class JmxReportingTest {
     }
     @After
     public void tearDown() throws SQLException {
-        jmxReporter.stop();
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.dropTable(connection);
         }
@@ -84,5 +99,16 @@ public class JmxReportingTest {
             Timestamp timestamp = resultSet.getTimestamp("created");
         }
         H2DbUtil.close(resultSet, statement, preparedStatement, connection);
+        final SortedMap<String, Timer> timers = metricRegistry.getTimers();
+        csvReporter.report(metricRegistry.getGauges(), metricRegistry.getCounters(), metricRegistry.getHistograms(), metricRegistry.getMeters(), timers);
+        // Check file
+        File[] csvFiles = csvFolder.listFiles();
+        if (csvFiles==null || csvFiles.length==0) {
+            fail("CSV not generated");
+        }
+        Set<File> csvFilesSet = new HashSet<>(Arrays.asList(csvFiles));
+        for(String timerName:timers.keySet()) {
+            assertTrue(csvFilesSet.contains(new File(csvFolder, timerName+".csv")));
+        }
     }
 }
