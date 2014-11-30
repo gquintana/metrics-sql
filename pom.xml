@@ -22,6 +22,14 @@
             <version>3.1.0</version>
         </dependency>        
         <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.1</version>
+            <!-- Required only for CGLibProxyFactory -->
+            <optional>true</optional>
+        </dependency>
+        <!-- Test dependencies -->
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
@@ -32,12 +40,6 @@
             <artifactId>h2</artifactId>
             <version>1.4.182</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>3.1</version>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -92,6 +94,11 @@
             <timezone>+1</timezone>
         </developer>
     </developers>
+    <organization>
+        <name>Open-Source</name>
+        <url>http://github.com/gquintana/metrics-sql</url>
+    </organization>
+    <inceptionYear>2014</inceptionYear>
     <licenses>
         <license>
             <name>Apache License 2.0</name>
@@ -102,7 +109,7 @@
     <scm>
         <url>scm:git:git@github.com:gquintana/metrics-sql.git</url>
         <connection>scm:git:git@github.com:gquintana/metrics-sql.git</connection>
-        <developerConnection>scm:git:git@github.com:obazoud/metrics-sql.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:gquintana/metrics-sql.git</developerConnection>
     </scm>
     <issueManagement>
         <system>github</system>
