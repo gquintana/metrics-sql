@@ -31,6 +31,9 @@ import net.gquintana.metrics.util.MetricRegistryHolder;
  * Metrics SQL initiazing class
  */
 public class MetricsSql {
+    /**
+     * Builder of {@link JdbcProxyFactory}
+     */
     public static class Builder {
         private final MetricNamingStrategy namingStrategy;
         private ProxyFactory proxyFactory = new ReflectProxyFactory();

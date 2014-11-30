@@ -34,7 +34,7 @@ import net.gquintana.metrics.util.StaticMetricRegistryHolder;
  * Driver URL.
  * Parses URL and extract properties
  */
-public class DriverUrl {
+class DriverUrl {
     public static final String URL_PREFIX="jdbc:metrics:";
     private final String rawUrl;
     private final String cleanUrl;

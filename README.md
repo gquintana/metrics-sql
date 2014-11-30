@@ -1,6 +1,7 @@
 # Metrics SQL
 
-This a Yammer|Codahale|Dropwizard Metrics extension to measure SQL and JDBC execution times.
+This a Yammer|Codahale|Dropwizard Metrics extension to instrument JDBC resources 
+and measure SQL execution times.
 
 [![Build Status](https://travis-ci.org/gquintana/metrics-sql.svg)](https://travis-ci.org/gquintana/metrics-sql)
 
