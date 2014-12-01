@@ -1,8 +1,10 @@
 *.class
 target/
 
-# Mobile Tools for Java (J2ME)
+# Temp files
 .mtj.tmp/
+*.tmp
+*~
 
 # IDE
 nb*.xml
