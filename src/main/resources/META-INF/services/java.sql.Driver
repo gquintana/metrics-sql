@@ -1,1 +1,1 @@
-net.gquintana.metrics.sql.Driver
+com.github.gquintana.metrics.sql.Driver
