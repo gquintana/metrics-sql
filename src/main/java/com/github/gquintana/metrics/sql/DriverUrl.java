@@ -70,7 +70,8 @@ class DriverUrl {
         Matcher matcher = PATTERN.matcher(rawUrl);
         StringBuilder cleanUrlBuilder = new StringBuilder("jdbc:");
         Properties properties = null;
-        String dbType = null;
+        String dbType;
+		String cleanUrl;
         if (matcher.matches()) {
             // mysql://localhost:3306/sakila
             cleanUrlBuilder.append(matcher.group(1));
@@ -86,11 +87,17 @@ class DriverUrl {
                 } else if (sep.equals(";")) {
                     properties = parseProperties(sProps, ";", cleanUrlBuilder);
                 }
-            }
+				cleanUrl = cleanUrlBuilder.toString();
+				if (cleanUrl.endsWith(sep)) {
+					cleanUrl = cleanUrl.substring(0, cleanUrl.length() - sep.length());
+				}
+            } else{
+				cleanUrl = cleanUrlBuilder.toString();
+			}
         } else {
             throw new IllegalArgumentException("Missing prefix "+URL_PREFIX);
         } 
-        return new DriverUrl(rawUrl, cleanUrlBuilder.toString(), dbType, properties);
+        return new DriverUrl(rawUrl, cleanUrl, dbType, properties);
     }
 
     public String getRawUrl() {
