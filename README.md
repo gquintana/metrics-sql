@@ -8,7 +8,7 @@ and measure SQL execution times.
 1. add metrics on borrow connection, implemented in DataSourceProxyHandler.
 2. adds a driver that wraps the real driver and does not call DriverManager.getConnection.
 3. wrap ResultSet also when calling Stetement.getResultSet
-$. adds an option to wrap only Connection but not Statements and ResultSets, implement with JdbcProxyFactoryOnlyConnection.
+4. adds an option to wrap only Connection but not Statements and ResultSets, implement with JdbcProxyFactoryOnlyConnection.
 
 
 
