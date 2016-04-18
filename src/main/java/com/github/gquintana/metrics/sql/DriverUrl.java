@@ -170,6 +170,11 @@ class DriverUrl {
     public Class<? extends MetricRegistryHolder> getRegistryHolderClass() {
         return getProperty("metrics_registry_holder", Class.class, StaticMetricRegistryHolder.class);
     }
+
+    public Class<? extends JdbcProxyFactory> getJdbcProxyFactoryClass() {
+        return getProperty("metrics_jdbc_proxy_factory", Class.class, JdbcProxyFactory.class);
+    }
+
     /**
      * @return Connection factory name
      */

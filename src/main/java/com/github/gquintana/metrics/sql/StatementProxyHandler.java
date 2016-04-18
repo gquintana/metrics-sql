@@ -23,12 +23,17 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.MethodInvocation;
+
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 /**
  * JDBC Proxy handler for {@link Statement}
  */
 public class StatementProxyHandler extends AbstractStatementProxyHandler<Statement> {
+
+
+    private String latestSql;
 
     public StatementProxyHandler(Statement delegate, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
         super(delegate, Statement.class, name, proxyFactory, lifeTimerContext);
@@ -39,6 +44,7 @@ public class StatementProxyHandler extends AbstractStatementProxyHandler<Stateme
         Object result;
         if (methodInvocation.getArgCount() > 0) {
             final String sql = methodInvocation.getArgAt(0, String.class);
+            latestSql = sql;
             final StatementTimerContext timerContext = proxyFactory.startStatementExecuteTimer(name, sql);
             result = methodInvocation.proceed();
             result = stopTimer(timerContext, result);
@@ -46,6 +52,20 @@ public class StatementProxyHandler extends AbstractStatementProxyHandler<Stateme
             result = methodInvocation.proceed();
         }
         return result;
+    }
+
+
+
+    protected ResultSet getResultSet(MethodInvocation<Statement> methodInvocation) throws Throwable {
+        String sql = latestSql;
+        if (sql == null){
+            sql = "no-sql";
+        }
+        ResultSet resultSet = (ResultSet) methodInvocation.proceed();
+        if (resultSet != null) {
+            resultSet = proxyFactory.wrapResultSet(name, resultSet, sql, null);
+        }
+        return resultSet;
     }
 
 }

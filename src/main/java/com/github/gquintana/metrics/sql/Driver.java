@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
+import com.github.gquintana.metrics.util.ReflectionUtil;
 
 /**
  * Metrics SQL JDBC Driver
@@ -51,31 +52,8 @@ public class Driver implements java.sql.Driver {
             throw new IllegalStateException(e);
         }
     }
-    private static <T> T newInstance(Class<T> clazz, Object ... params) throws SQLException {
-        try {
-            if (params == null || params.length==0) {
-                return clazz.newInstance();
-            } else {
-                for(Constructor<?> ctor: clazz.getConstructors()) {
-                    if (ctor.getParameterTypes().length==params.length) {
-                        int paramIndex=0;
-                        for(Class<?> paramType:ctor.getParameterTypes()) {
-                            if (!paramType.isInstance(params[paramIndex])) {
-                                break;
-                            }
-                            paramIndex++;
-                        }
-                        if (paramIndex==params.length) {
-                            return clazz.cast(ctor.newInstance(params));
-                        }
-                    }
-                }
-                throw new SQLException("Constructor not found for "+clazz);
-            }
-        } catch (ReflectiveOperationException reflectiveOperationException) {
-            throw new SQLException(reflectiveOperationException);
-        }
-    }
+
+
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (!acceptsURL(url)) {
@@ -87,9 +65,9 @@ public class Driver implements java.sql.Driver {
         // Open connection
         Connection rawConnection=DriverManager.getConnection(driverUrl.getCleanUrl(), info);
         // Wrap connection
-        ProxyFactory factory = newInstance(driverUrl.getProxyFactoryClass());
-        MetricRegistryHolder registryHolder = newInstance(driverUrl.getRegistryHolderClass());
-        MetricNamingStrategy namingStrategy = newInstance(driverUrl.getNamingStrategyClass(), registryHolder);
+        ProxyFactory factory = ReflectionUtil.newInstance(driverUrl.getProxyFactoryClass());
+        MetricRegistryHolder registryHolder = ReflectionUtil.newInstance(driverUrl.getRegistryHolderClass());
+        MetricNamingStrategy namingStrategy = ReflectionUtil.newInstance(driverUrl.getNamingStrategyClass(), registryHolder);
         JdbcProxyFactory proxyFactory = new JdbcProxyFactory(namingStrategy, factory);
         return proxyFactory.wrapConnection(driverUrl.getName(), rawConnection);
     }

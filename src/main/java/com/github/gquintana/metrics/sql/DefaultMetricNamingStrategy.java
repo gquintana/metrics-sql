@@ -147,6 +147,26 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * {@inheritDoc}
      */
     public Timer.Context startResultSetTimer(String databaseName, String sql, String sqlId) {
-        return startTimer(ResultSet.class, databaseName, sqlId);
+        final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
+        return startTimer(ResultSet.class, databaseName, lSqlId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Timer.Context startBorrowConnectionTimer(String databaseName) {
+        return startTimer(Connection.class,databaseName,"borrow");
+    }
+
+    @Override
+    public Timer.Context startDriverConnectTimer(String databaseName) {
+        return startTimer(Driver.class,databaseName,"connect");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Timer.Context startFailedBorrowConnectionTimer(String databaseName) {
+        return startTimer(Connection.class,databaseName,"borrowfailure");
     }
 }
