@@ -1,0 +1,4 @@
+
+
+to build and deploy:
+mvn -f pom-taboola.xml clean source:jar-no-fork deploy
