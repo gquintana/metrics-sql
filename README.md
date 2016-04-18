@@ -3,6 +3,15 @@
 This a Yammer|Codahale|Dropwizard Metrics extension to instrument JDBC resources 
 and measure SQL execution times.
 
+
+## NOTE: this fork adds the following:
+1. add metrics on borrow connection, implemented in DataSourceProxyHandler.
+2. adds a driver that wraps the real driver and does not call DriverManager.getConnection.
+3. wrap ResultSet also when calling Stetement.getResultSet
+$. adds an option to wrap only Connection but not Statements and ResultSets, implement with JdbcProxyFactoryOnlyConnection.
+
+
+
 [![Build Status](https://travis-ci.org/gquintana/metrics-sql.svg)](https://travis-ci.org/gquintana/metrics-sql)
 
 ## Setup
