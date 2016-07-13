@@ -127,12 +127,12 @@
         <snapshotRepository>
             <id>taboola-snapshots</id>
             <name>art001.taboolasyndication.com-snapshots</name>
-            <url>http://art001.taboolasyndication.com:8081/artifactory/ext-snapshot-local</url>
+            <url>http://ARTIFACTORY-ADDRESS/artifactory/ext-snapshot-local</url>
         </snapshotRepository>
         <repository>
             <id>taboola-releases</id>
             <name>art001.taboolasyndication.com-releases</name>
-            <url>http://art001.taboolasyndication.com:8081/artifactory/ext-release-local</url>
+            <url>http://ARTIFACTORY-ADDRESS/artifactory/ext-release-local</url>
         </repository>
     </distributionManagement>
     <repositories>
