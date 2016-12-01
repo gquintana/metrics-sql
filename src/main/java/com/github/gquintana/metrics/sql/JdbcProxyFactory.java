@@ -28,6 +28,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Properties;
 import javax.sql.DataSource;
 import javax.sql.PooledConnection;
 import javax.sql.RowSet;
@@ -82,13 +83,19 @@ public class JdbcProxyFactory {
         this.metricNamingStrategy = namingStrategy;
         this.proxyFactory = proxyFactory;
     }
+
+
+    protected MetricNamingStrategy getMetricNamingStrategy() {
+        return metricNamingStrategy;
+    }
+
     /**
      * Create a proxy for given JDBC proxy handler
      * @param <T> Proxy type
      * @param proxyHandler Proxy handler
      * @return Proxy
      */
-    private <T> T newProxy(JdbcProxyHandler<T> proxyHandler) {
+    protected <T> T newProxy(JdbcProxyHandler<T> proxyHandler) {
         return (T) proxyFactory.newProxy(proxyHandler, proxyHandler.getProxyClass());
     }
     
@@ -232,6 +239,42 @@ public class JdbcProxyFactory {
         return metricNamingStrategy.startCallableStatementExecuteTimer(connectionFactoryName, sql, sqlId);
     }
 
+
+    /**
+     * Start timer measuring {@link DataSource#getConnection() }
+     *
+     * @param connectionFactoryName Connection factory name
+     * @return Started timer context or null
+     */
+    public Timer.Context startBorrowConnectionTimer(String connectionFactoryName) {
+        return metricNamingStrategy.startBorrowConnectionTimer(connectionFactoryName);
+    }
+
+    /**
+     * Start timer measuring {@link java.sql.Driver#connect(String, Properties)} () }
+     *
+     * @param connectionFactoryName Connection factory name
+     * @return Started timer context or null
+     */
+    public Timer.Context startDriverConnectTimer(String connectionFactoryName) {
+        return metricNamingStrategy.startDriverConnectTimer(connectionFactoryName);
+    }
+
+
+    /**
+     * Start timer measuring {@link DataSource#getConnection() } that will be closed only if getConnection failed.
+     *
+     * @param connectionFactoryName Connection factory name
+     * @return Started timer context or null
+     */
+    public Timer.Context startFailedBorrowConnectionTimer(String connectionFactoryName) {
+        return metricNamingStrategy.startFailedBorrowConnectionTimer(connectionFactoryName);
+    }
+
+
+
+
+
     /**
      * Wrap a result set to monitor it.
      *
@@ -275,6 +318,7 @@ public class JdbcProxyFactory {
         }
         return resultSetType;
     }
+
 
 
 }

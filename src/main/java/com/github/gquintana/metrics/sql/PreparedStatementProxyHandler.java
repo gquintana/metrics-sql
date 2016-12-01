@@ -24,6 +24,8 @@ package com.github.gquintana.metrics.sql;
 import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.MethodInvocation;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * JDBC proxy handler for {@link PreparedStatement}
@@ -53,6 +55,15 @@ public class PreparedStatementProxyHandler extends AbstractStatementProxyHandler
         Object result = methodInvocation.proceed();
         result = stopTimer(timerContext, result);
         return result;
+    }
+
+
+    protected ResultSet getResultSet(MethodInvocation<PreparedStatement> methodInvocation) throws Throwable {
+        ResultSet resultSet = (ResultSet) methodInvocation.proceed();
+        if (resultSet != null) {
+            resultSet = proxyFactory.wrapResultSet(name, resultSet, sql, sqlId);
+        }
+        return resultSet;
     }
 
 }

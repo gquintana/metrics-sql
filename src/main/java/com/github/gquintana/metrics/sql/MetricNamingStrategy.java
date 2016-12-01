@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Properties;
 import javax.sql.PooledConnection;
 
 /**
@@ -105,4 +106,28 @@ public interface MetricNamingStrategy {
      * @return Started Timer context or null
      */
     Timer.Context startResultSetTimer(String databaseName, String sql, String sqlId);
+
+
+    /**
+     * Start timer for {@link Connection} borrow in case of using a connection pool through a connection pool data source
+     * @param databaseName  Name of the database
+     * @return Started Timer context or null
+     */
+    Timer.Context startBorrowConnectionTimer(String databaseName);
+
+    /**
+     * Start timer for {@link Connection} borrow failure.
+     * @param databaseName  Name of the database
+     * @return Started Timer context or null
+     */
+    Timer.Context startFailedBorrowConnectionTimer(String databaseName);
+
+    /**
+     * Start timer for {@link java.sql.Driver#connect(String, Properties)} ()}
+     * @param databaseName  Name of the database
+     * @return Started Timer context or null
+     */
+    Timer.Context startDriverConnectTimer(String databaseName);
+
+
 }

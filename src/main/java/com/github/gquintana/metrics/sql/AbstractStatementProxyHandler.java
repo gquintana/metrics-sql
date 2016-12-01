@@ -48,6 +48,8 @@ public abstract class AbstractStatementProxyHandler<T extends Statement> extends
             result = close(delegatingMethodInvocation);
         } else if (methodName.equals("execute") || methodName.equals("executeQuery") || methodName.equals("executeUpdate")) {
             result = execute(delegatingMethodInvocation);
+        } else if (methodName.equals("getResultSet")){
+            result = getResultSet(delegatingMethodInvocation);
         } else {
             result = delegatingMethodInvocation.proceed();
         }
@@ -62,6 +64,10 @@ public abstract class AbstractStatementProxyHandler<T extends Statement> extends
     public InvocationFilter getInvocationFilter() {
         return THIS_INVOCATION_FILTER;
     }
+
+
+    protected abstract ResultSet getResultSet(MethodInvocation<T> delegatingMethodInvocation) throws Throwable;
+
     protected Object stopTimer(StatementTimerContext timerContext, Object result) {
         if (timerContext!=null) {
             stopTimer(timerContext.getTimerContext());
