@@ -28,7 +28,8 @@
     </Appenders>
     <!-- Loggers -->
     <Loggers>
-        <Root level="ERROR">
+        <Logger name="com.github.gquintana.metrics" level="INFO"/>
+        <Root level="WARN">
             <AppenderRef ref="console"/>
         </Root>
     </Loggers>
