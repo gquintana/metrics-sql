@@ -4,6 +4,8 @@ This a Yammer|Codahale|Dropwizard Metrics extension to instrument JDBC resources
 and measure SQL execution times.
 
 [![Build Status](https://travis-ci.org/gquintana/metrics-sql.svg)](https://travis-ci.org/gquintana/metrics-sql)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.gquintana.metrics/metrics-sql/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.gquintana.metrics/metrics-sql/)
+
 
 ## Setup
 
