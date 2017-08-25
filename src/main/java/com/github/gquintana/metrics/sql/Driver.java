@@ -20,16 +20,13 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
-import java.lang.reflect.Constructor;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.DriverPropertyInfo;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.Properties;
-import java.util.logging.Logger;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
+
+import java.lang.reflect.Constructor;
+import java.sql.*;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 /**
  * Metrics SQL JDBC Driver

@@ -22,12 +22,11 @@ package com.github.gquintana.metrics.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.sql.*;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.sql.*;
 
 /**
  *
@@ -66,8 +65,7 @@ public class H2DbUtil {
         config.setMaximumPoolSize(5);
         config.setMinimumIdle(3);
         
-        HikariDataSource dataSource = new HikariDataSource(config);
-        return dataSource;
+        return new HikariDataSource(config);
     }
     public static void initTable(Connection connection) throws SQLException {
         try(Statement statement = connection.createStatement()) {

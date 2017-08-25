@@ -23,6 +23,7 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.MethodInvocation;
+
 import javax.sql.PooledConnection;
 import java.sql.Connection;
 

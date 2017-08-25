@@ -21,12 +21,9 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.Timer;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+
 import javax.sql.PooledConnection;
+import java.sql.*;
 
 /**
  * Strategy used to tell what should be timed and what should be the name of the timer

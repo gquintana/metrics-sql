@@ -21,20 +21,17 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
+import com.github.gquintana.metrics.util.StaticMetricRegistryHolder;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.DriverPropertyInfo;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import com.github.gquintana.metrics.util.StaticMetricRegistryHolder;
+
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Test Statement wrapper

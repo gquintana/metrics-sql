@@ -25,6 +25,7 @@ import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.AbstractProxyFactory;
 import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
+import com.github.gquintana.metrics.proxy.CachingProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 import com.github.gquintana.metrics.util.ParametersBuilder;
 import org.junit.After;
@@ -32,13 +33,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Collection;
-import com.github.gquintana.metrics.proxy.CachingProxyFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Performance test

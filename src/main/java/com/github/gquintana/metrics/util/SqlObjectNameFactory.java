@@ -22,11 +22,12 @@ package com.github.gquintana.metrics.util;
 
 import com.codahale.metrics.DefaultObjectNameFactory;
 import com.codahale.metrics.ObjectNameFactory;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
 /**
  * Generates JMX {@link ObjectName} using JMX

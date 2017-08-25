@@ -70,12 +70,16 @@ public final class ProxyClass {
     }
     /**
      * Create proxy class
+     * @return Class of proxy for given classloader and interfaces
      */
     public Class createClass() {
         return Proxy.getProxyClass(getClassLoader(), getInterfaces());
     }
     /**
      * Create proxy constructor
+     /**
+     * Create proxy class
+     * @return Constructor of proxy for given classloader and interfaces
      */
     public Constructor createConstructor() {
         try {

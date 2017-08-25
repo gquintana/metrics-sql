@@ -22,11 +22,12 @@ package com.github.gquintana.metrics.sql;
 
 
 import com.codahale.metrics.Timer;
-import com.github.gquintana.metrics.proxy.ProxyHandler;
 import com.github.gquintana.metrics.proxy.MethodInvocation;
+import com.github.gquintana.metrics.proxy.ProxyClass;
+import com.github.gquintana.metrics.proxy.ProxyHandler;
+
 import java.sql.SQLException;
 import java.sql.Wrapper;
-import com.github.gquintana.metrics.proxy.ProxyClass;
 
 /**
  * Base class for all JDBC Proxy handlers.

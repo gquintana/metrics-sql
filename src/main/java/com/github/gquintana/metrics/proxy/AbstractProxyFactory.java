@@ -33,6 +33,7 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
      * @param proxyHandler Proxy invocation handler
      * @param classLoader Class loader
      * @param interfaces Interfaces to implement
+     * @param <X> Proxy type (main interface)
      * @return Proxy
      */
     public <X> X newProxy(ProxyHandler<X> proxyHandler, ClassLoader classLoader, Class<?>... interfaces) {
@@ -43,7 +44,9 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
      * Create a proxy using given classloader and interfaces. Current thread
      * class loaded is used as default classload.
      *
+     * @param proxyHandler Proxy implementation
      * @param interfaces Interfaces to implement
+     * @param <X> Proxy type (main interface)
      * @return Proxy
      */
     public <X> X newProxy(ProxyHandler<X> proxyHandler, Class<?>... interfaces) {
@@ -53,7 +56,9 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
     /**
      * Create a proxy using given classloader and interfaces
      *
+     * @param proxyHandler Proxy implementation
      * @param interfaces Interface to implement
+     * @param <X> Proxy type (main interface)
      * @return Proxy
      */
     public <X> X newProxy(ProxyHandler<?> proxyHandler, Class<X> interfaces) {

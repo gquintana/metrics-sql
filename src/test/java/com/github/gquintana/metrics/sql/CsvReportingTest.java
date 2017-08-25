@@ -21,32 +21,27 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.CsvReporter;
-import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import javax.management.MBeanServer;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
-import javax.management.MBeanServer;
-import com.github.gquintana.metrics.util.SqlObjectNameFactory;
-import static org.hamcrest.CoreMatchers.hasItems;
-import org.junit.Assert;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 /**
  * Test the integration between Metrics SQL and the CSV Reporter

@@ -22,19 +22,15 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import javax.sql.DataSource;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.sql.DataSource;
+import java.lang.reflect.Proxy;
+import java.sql.*;
+
+import static org.junit.Assert.*;
 
 /**
  * Test Statement wrapper

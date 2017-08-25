@@ -21,11 +21,12 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
-import java.sql.Connection;
-import javax.sql.DataSource;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
 
 /**
  * Metrics SQL initiazing class
@@ -38,23 +39,29 @@ public class MetricsSql {
         private final MetricNamingStrategy namingStrategy;
         private ProxyFactory proxyFactory = new ReflectProxyFactory();
         private JdbcProxyFactory jdbcProxyFactory;
-        public Builder(MetricNamingStrategy namingStrategy) {
+        private Builder(MetricNamingStrategy namingStrategy) {
             this.namingStrategy = namingStrategy;
         }
-        public Builder(MetricRegistryHolder registryHolder) {
+        private Builder(MetricRegistryHolder registryHolder) {
             this.namingStrategy = new DefaultMetricNamingStrategy(registryHolder);
         }
-        
         public Builder(MetricRegistry registry) {
             this.namingStrategy = new DefaultMetricNamingStrategy(registry);
         }
         /**
          * Select factory of proxies
+         * @param proxyFactory Strategy to create proxies
+         * @return Current builder
          */
         public Builder withProxyFactory(ProxyFactory proxyFactory) {
             this.proxyFactory = proxyFactory;
             return this;
         }
+
+        /**
+         * Build {@link JdbcProxyFactory}
+         * @return Built {@link JdbcProxyFactory}
+         */
         public JdbcProxyFactory build() {
             if (jdbcProxyFactory == null) {
                 jdbcProxyFactory = new JdbcProxyFactory(namingStrategy, proxyFactory);
@@ -63,12 +70,18 @@ public class MetricsSql {
         }
         /**
          * Wrap an existing {@link DataSource} to add metrics
+         * @param databaseName Database name for metric naming
+         * @param dataSource {@link DataSource} to wrap
+         * @return Wrapped {@link DataSource}
          */
         public DataSource wrap(String databaseName, DataSource dataSource) {
             return build().wrapDataSource(databaseName, dataSource);
         } 
         /**
          * Wrap an existing {@link Connection} to add connection
+         * @param databaseName Database name for metric naming
+         * @param connection {@link Connection} to wrap
+         * @return Wrapped {@link Connection}
          */
         public Connection wrap(String databaseName, Connection connection) {
             return build().wrapConnection(databaseName, connection);
@@ -76,18 +89,24 @@ public class MetricsSql {
     }
     /**
      * Select Default naming strategy and Metric registry
+     * @param registry Metrics registry
+     * @return Builder of {@link JdbcProxyFactory}
      */
     public static Builder forRegistry(MetricRegistry registry) {
         return new Builder(registry);
     }
     /**
      * Select Default naming strategy and Metric registry holder
+     * @param registryHolder Metrics registry provider or holder
+     * @return Builder of {@link JdbcProxyFactory}
      */
     public static Builder forRegistryHolder(MetricRegistryHolder registryHolder) {
         return new Builder(registryHolder);
     }
     /**
-     * Select Metric naming strategy and Metric registry
+     * Configure Metric naming strategy
+     * @param namingStrategy Strategy to name metrics
+     * @return Builder of {@link JdbcProxyFactory}
      */
     public static Builder withMetricNamingStrategy(MetricNamingStrategy namingStrategy) {
         return new Builder(namingStrategy);

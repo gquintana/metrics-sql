@@ -70,6 +70,7 @@ public class ProxyHandler<T> implements InvocationHandler {
 
     /**
      * Return Wrapped class and concrete implementation.
+     * @return Wrapped implementation
      */
     public T getDelegate() {
         return delegate;
@@ -85,6 +86,7 @@ public class ProxyHandler<T> implements InvocationHandler {
          * call is done
          *
          * @param method Method
+         * @return true if method is intercepted
          */
         boolean isIntercepted(Method method);
     }

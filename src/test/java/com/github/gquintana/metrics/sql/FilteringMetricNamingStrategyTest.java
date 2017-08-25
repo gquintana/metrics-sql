@@ -22,18 +22,16 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import java.lang.reflect.Proxy;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.SortedMap;
-import javax.sql.DataSource;
 import org.junit.After;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Test;
+
+import javax.sql.DataSource;
+import java.lang.reflect.Proxy;
+import java.sql.*;
+import java.util.SortedMap;
+
+import static org.junit.Assert.*;
 
 /**
  *

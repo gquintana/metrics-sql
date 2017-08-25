@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;

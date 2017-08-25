@@ -21,16 +21,18 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.sql.DataSource;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.sql.DataSource;
-import org.junit.After;
+
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Test Statement wrapper

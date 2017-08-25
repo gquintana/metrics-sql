@@ -22,14 +22,11 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import javax.sql.PooledConnection;
 import com.github.gquintana.metrics.util.DefaultMetricRegistryHolder;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
+
+import javax.sql.PooledConnection;
+import java.sql.*;
 
 /**
  * Defaut implementation of {@link MetricNamingStrategy}
@@ -56,6 +53,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * Generate SQL Id from SQL query.
      * This method can be used to normalize SQL queries, remove special characters,
      * truncate long SQL queries...
+     * @param sql Input SQL
      * @return [sql]
      */
     protected String getSqlId(String sql) {
@@ -63,6 +61,9 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
     }
     /**
      * Start Timer for given Class and names
+     * @param clazz JDBC Class
+     * @param names Query, event...
+     * @return Started timer
      */
     protected Timer.Context startTimer(Class<?> clazz, String ... names) {
         return getMetricRegistry().timer(MetricRegistry.name(clazz, names)).time();

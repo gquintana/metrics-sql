@@ -23,7 +23,7 @@ package com.github.gquintana.metrics.sql;
 import com.codahale.metrics.Timer;
 
 /**
- * {@link Timer#Context} and SQL Id couple
+ * {@link com.codahale.metrics.Timer.Context} and SQL Id couple
  */
 public class StatementTimerContext {
     private final Timer.Context timerContext;

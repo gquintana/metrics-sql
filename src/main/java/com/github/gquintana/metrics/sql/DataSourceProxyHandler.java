@@ -22,6 +22,7 @@ package com.github.gquintana.metrics.sql;
 
 
 import com.github.gquintana.metrics.proxy.MethodInvocation;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 

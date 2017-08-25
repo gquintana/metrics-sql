@@ -21,12 +21,14 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
-import java.sql.Connection;
-import java.sql.SQLException;
 import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
-import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Integration test between {@link CGLibProxyFactory} and {@link JdbcProxyFactory}

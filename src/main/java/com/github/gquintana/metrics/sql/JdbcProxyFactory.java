@@ -23,23 +23,12 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import javax.sql.DataSource;
-import javax.sql.PooledConnection;
-import javax.sql.RowSet;
-import javax.sql.XAConnection;
-import javax.sql.XADataSource;
-import javax.sql.rowset.CachedRowSet;
-import javax.sql.rowset.FilteredRowSet;
-import javax.sql.rowset.JdbcRowSet;
-import javax.sql.rowset.JoinRowSet;
-import javax.sql.rowset.WebRowSet;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
+
+import javax.sql.*;
+import javax.sql.rowset.*;
+import java.sql.*;
 
 /**
  * Factory of {@code JdbcProxyHandler} sub classes, central class of Metrics SQL.
@@ -58,6 +47,7 @@ public class JdbcProxyFactory {
 
     /**
      * Constructor using default {@link ReflectProxyFactory} and default {@link DefaultMetricNamingStrategy}
+     * @param metricRegistry Metric registry to store metrics
      */
     public JdbcProxyFactory(MetricRegistry metricRegistry) {
         this(new DefaultMetricNamingStrategy(metricRegistry));
@@ -89,7 +79,7 @@ public class JdbcProxyFactory {
      * @return Proxy
      */
     private <T> T newProxy(JdbcProxyHandler<T> proxyHandler) {
-        return (T) proxyFactory.newProxy(proxyHandler, proxyHandler.getProxyClass());
+        return proxyFactory.newProxy(proxyHandler, proxyHandler.getProxyClass());
     }
     
     /**

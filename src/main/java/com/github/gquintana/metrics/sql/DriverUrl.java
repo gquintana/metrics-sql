@@ -20,15 +20,16 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.AbstractProxyFactory;
+import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.CachingProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
 import com.github.gquintana.metrics.util.StaticMetricRegistryHolder;
+
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Driver URL.

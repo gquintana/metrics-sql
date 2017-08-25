@@ -22,15 +22,15 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
-import java.lang.management.ManagementFactory;
+import com.github.gquintana.metrics.util.SqlObjectNameFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.sql.DataSource;
-import java.sql.*;
 import javax.management.MBeanServer;
-import com.github.gquintana.metrics.util.SqlObjectNameFactory;
+import javax.sql.DataSource;
+import java.lang.management.ManagementFactory;
+import java.sql.*;
 
 /**
  * Test the integration betwen Metric SQL and the JMX Reporter

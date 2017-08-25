@@ -1,5 +1,5 @@
 /**
- * Classes to wrap JDBC resources ({@link java.sql.DataSource}, {@link java.sql.Connection}, {@link java.sql.Statement}
+ * Classes to wrap JDBC resources ({@link javax.sql.DataSource}, {@link java.sql.Connection}, {@link java.sql.Statement}
  * and time their life time and execution time.
  */
 package com.github.gquintana.metrics.sql;
