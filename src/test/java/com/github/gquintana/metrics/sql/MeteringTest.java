@@ -62,7 +62,7 @@ public class MeteringTest {
         }
         proxyFactory = MetricsSql.forRegistry(metricRegistry)
                 .withProxyFactory(new ReflectProxyFactory()).build();
-        dataSource = proxyFactory.wrapDataSource("test", rawDataSource);
+        dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
 
     @After
@@ -115,25 +115,25 @@ public class MeteringTest {
                 ));
 
         // connection
-        Timer timer = metricRegistry.timer("java.sql.Connection.test");
+        Timer timer = metricRegistry.timer("java.sql.Connection");
         assertThat(timer.getCount(), equalTo((long) iterations));
 
         // statement
-        timer = metricRegistry.timer("java.sql.Statement.test");
+        timer = metricRegistry.timer("java.sql.Statement");
         assertThat(timer.getCount(), equalTo((long) iterations));
-        timer = metricRegistry.timer("java.sql.Statement.test.[select count(*) from metrics_test].exec");
+        timer = metricRegistry.timer("java.sql.Statement.[select count(*) from metrics_test].exec");
         assertThat(timer.getCount(), equalTo((long) iterations));
-        timer = metricRegistry.timer("java.sql.Statement.test.[select * from metrics_test order by id asc].exec");
+        timer = metricRegistry.timer("java.sql.Statement.[select * from metrics_test order by id asc].exec");
         assertThat(timer.getCount(), equalTo((long) iterations));
 
         // prepared statement
-        timer = metricRegistry.timer("java.sql.PreparedStatement.test.[insert into metrics_test(id, text, created) values (?,?,?)].exec");
+        timer = metricRegistry.timer("java.sql.PreparedStatement.[insert into metrics_test(id, text, created) values (?,?,?)].exec");
         assertThat(timer.getCount(), equalTo((long) iterations * inserts));
 
-        timer = metricRegistry.timer("java.sql.PreparedStatement.test.[insert into metrics_test(id, text, created) values (?,?,?)]");
+        timer = metricRegistry.timer("java.sql.PreparedStatement.[insert into metrics_test(id, text, created) values (?,?,?)]");
         assertThat(timer.getCount(), equalTo((long) iterations));
 
-        timer = metricRegistry.timer("java.sql.PreparedStatement.test.[select * from metrics_test where text=? order by id asc].exec");
+        timer = metricRegistry.timer("java.sql.PreparedStatement.[select * from metrics_test where text=? order by id asc].exec");
         assertThat(timer.getCount(), equalTo((long) iterations));
         Snapshot timerSnapshot = timer.getSnapshot();
         double preparedStatementExecMean = timerSnapshot.getMean();
@@ -141,7 +141,7 @@ public class MeteringTest {
         assertThat(timerSnapshot.getMax(), greaterThan(0L));
         assertThat(timerSnapshot.getMax(), greaterThan(timerSnapshot.getMin()));
 
-        timer = metricRegistry.timer("java.sql.PreparedStatement.test.[select * from metrics_test where text=? order by id asc]");
+        timer = metricRegistry.timer("java.sql.PreparedStatement.[select * from metrics_test where text=? order by id asc]");
         assertThat(timer.getCount(), equalTo((long) iterations));
         timerSnapshot = timer.getSnapshot();
         assertThat(timerSnapshot.getMean(), greaterThan(preparedStatementExecMean));

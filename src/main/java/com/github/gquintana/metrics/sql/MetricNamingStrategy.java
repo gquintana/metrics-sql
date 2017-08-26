@@ -20,8 +20,6 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
-import com.codahale.metrics.Timer;
-
 import javax.sql.PooledConnection;
 import java.sql.*;
 
@@ -30,76 +28,70 @@ import java.sql.*;
  */
 public interface MetricNamingStrategy {
     /**
-     * Start timer for {@link PooledConnection} life
-     * @param databaseName  Name of the database
-     * @return Started Timer context or null
+     * Get timer name for {@link PooledConnection} life
+     * @return Timer name or null
      */
-    Timer.Context startPooledConnectionTimer(String databaseName);
+    String getPooledConnectionLifeTimer();
 
     /**
-     * Start timer for {@link Connection} life
-     * @param databaseName  Name of the database
-     * @return Started Timer context or null
+     * Get timer name for {@link Connection} life
+     * @return Timer name or null
      */
-    Timer.Context startConnectionTimer(String databaseName);
+    String getConnectionLifeTimer();
 
     /**
-     * Start timer for {@link Statement} life
-     * @param databaseName  Name of the database
-     * @return Started Timer context or null
+     * Get timer name for {@link Statement} life
+     * @return Timer name or null
      */
-    Timer.Context startStatementTimer(String databaseName);
+    String getStatementLifeTimer();
 
     /**
-     * Start timer for {@link Statement} execution
-     * @param databaseName  Name of the database
-     * @param sql SQL Query
-     * @return Started Timer context or null
-     */
-    StatementTimerContext startStatementExecuteTimer(String databaseName, String sql);
-
-    /**
-     * Start timer for {@link PreparedStatement} life
-     * @param databaseName  Name of the database
+     * Get timer name for {@link Statement} execution
      * @param sql SQL Query
      * @param sqlId SQL Id generated from query or null
-     * @return Started Timer context or null
+     * @return Timer name or null
      */
-    StatementTimerContext startPreparedStatementTimer(String databaseName, String sql, String sqlId);
+    String getStatementExecuteTimer(String sql, String sqlId);
 
     /**
-     * Start timer for {@link PreparedStatement} execution
-     * @param databaseName  Name of the database
+     * Get timer name for {@link PreparedStatement} life
      * @param sql SQL Query
      * @param sqlId SQL Id generated from query or null
-     * @return Started Timer context or null
+     * @return Timer name or null
      */
-    StatementTimerContext startPreparedStatementExecuteTimer(String databaseName, String sql, String sqlId);
+    String getPreparedStatementLifeTimer(String sql, String sqlId);
 
     /**
-     * Start timer for {@link CallableStatement} life
-     * @param databaseName  Name of the database
+     * Get timer name for {@link PreparedStatement} execution
      * @param sql SQL Query
      * @param sqlId SQL Id generated from query or null
-     * @return Started Timer context or null
+     * @return Timer name or null
      */
-    StatementTimerContext startCallableStatementTimer(String databaseName, String sql, String sqlId);
+    String getPreparedStatementExecuteTimer(String sql, String sqlId);
 
     /**
-     * Start timer for {@link CallableStatement} execution
-     * @param databaseName  Name of the database
+     * Get timer name for {@link CallableStatement} life
      * @param sql SQL Query
      * @param sqlId SQL Id generated from query or null
-     * @return Started Timer context or null
+     * @return Timer name or null
      */
-    StatementTimerContext startCallableStatementExecuteTimer(String databaseName, String sql, String sqlId);
+    String getCallableStatementLifeTimer(String sql, String sqlId);
 
     /**
-     * Start timer for {@link ResultSet} execution
-     * @param databaseName  Name of the database
+     * Get timer name for {@link CallableStatement} execution
      * @param sql SQL Query
      * @param sqlId SQL Id generated from query or null
-     * @return Started Timer context or null
+     * @return Timer name or null
      */
-    Timer.Context startResultSetTimer(String databaseName, String sql, String sqlId);
+    String getCallableStatementExecuteTimer(String sql, String sqlId);
+
+    /**
+     * Get timer name for {@link ResultSet} execution
+     * @param sql SQL Query
+     * @param sqlId SQL Id generated from query or null
+     * @return Timer name or null
+     */
+    String getResultSetLifeTimer(String sql, String sqlId);
+
+    String getSqlId(String sql);
 }

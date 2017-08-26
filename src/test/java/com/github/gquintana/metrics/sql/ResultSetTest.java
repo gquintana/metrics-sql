@@ -48,7 +48,7 @@ public class ResultSetTest {
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        dataSource = proxyFactory.wrapDataSource("test", rawDataSource);
+        dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
     @After
     public void tearDown() throws SQLException {
@@ -72,7 +72,7 @@ public class ResultSetTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        Timer timer = metricRegistry.getTimers().get("java.sql.ResultSet.test.[select * from metrics_test]");
+        Timer timer = metricRegistry.getTimers().get("java.sql.ResultSet.[select * from metrics_test]");
         assertNotNull(timer);
         assertEquals(1L, timer.getCount());
     }

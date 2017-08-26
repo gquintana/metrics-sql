@@ -45,10 +45,6 @@ public abstract class JdbcProxyHandler<T> extends ProxyHandler<T> {
      */
     private final Timer.Context lifeTimerContext;
     /**
-     * Proxy name
-     */
-    protected final String name;
-    /**
      * Parent factory of proxy factories
      */
     protected final JdbcProxyFactory proxyFactory;
@@ -58,15 +54,13 @@ public abstract class JdbcProxyHandler<T> extends ProxyHandler<T> {
      *
      * @param delegate Wrapped JDBC object
      * @param delegateType JDBC object interface
-     * @param name Proxy name
      * @param proxyFactory Parent factory
      * @param lifeTimerContext Proxy life timer context
      */
-    protected JdbcProxyHandler(T delegate, Class<T> delegateType, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
+    protected JdbcProxyHandler(T delegate, Class<T> delegateType, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
         super(delegate);
         this.delegateType = delegateType;
         this.proxyFactory = proxyFactory;
-        this.name = name;
         this.lifeTimerContext = lifeTimerContext;
     }
 
@@ -88,7 +82,7 @@ public abstract class JdbcProxyHandler<T> extends ProxyHandler<T> {
         return methodInvocation.proceed();
     }
 
-    protected final void stopTimer(Timer.Context timerContext) {
+    protected static void stopTimer(Timer.Context timerContext) {
         if (timerContext != null) {
             timerContext.stop();
         }
@@ -108,5 +102,9 @@ public abstract class JdbcProxyHandler<T> extends ProxyHandler<T> {
 
     public ProxyClass getProxyClass() {
         return new ProxyClass(delegate.getClass().getClassLoader(), delegateType);
+    }
+
+    protected TimerStarter getTimerStarter() {
+        return proxyFactory.getTimerStarter();
     }
 }

@@ -45,7 +45,7 @@ public class DataSourceTest {
     public void setUp() {
         metricRegistry = new MetricRegistry();
         dataSource = MetricsSql.forRegistry(metricRegistry)
-                .wrap("test", H2DbUtil.createDataSource());
+                .wrap(H2DbUtil.createDataSource());
     }
     @After
     public void tearDown() {
@@ -59,7 +59,7 @@ public class DataSourceTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(connection.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection.test"));
+        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection"));
         
     }
     @Test

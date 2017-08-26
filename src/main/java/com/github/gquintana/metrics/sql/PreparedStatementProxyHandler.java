@@ -34,10 +34,10 @@ public class PreparedStatementProxyHandler extends AbstractStatementProxyHandler
     private final String sql;
     private final String sqlId;
 
-    public PreparedStatementProxyHandler(PreparedStatement delegate, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext, String sql, String sqlId) {
-        super(delegate, PreparedStatement.class, name, proxyFactory, lifeTimerContext);
-        this.sql = sql;
-        this.sqlId = sqlId;
+    public PreparedStatementProxyHandler(PreparedStatement delegate, JdbcProxyFactory proxyFactory, StatementTimerContext lifeTimerContext) {
+        super(delegate, PreparedStatement.class, proxyFactory, lifeTimerContext.getTimerContext());
+        this.sql = lifeTimerContext.getSql();
+        this.sqlId = lifeTimerContext.getSqlId();
     }
 
     protected final Object execute(MethodInvocation<PreparedStatement> methodInvocation) throws Throwable {
@@ -50,10 +50,10 @@ public class PreparedStatementProxyHandler extends AbstractStatementProxyHandler
             lSql = this.sql;
             lSqlId = this.sqlId;
         }
-        StatementTimerContext timerContext = proxyFactory.startPreparedStatementExecuteTimer(name, lSql, lSqlId);
+        StatementTimerContext timerContext = getTimerStarter().startPreparedStatementExecuteTimer(lSql, lSqlId);
         Object result = methodInvocation.proceed();
-        result = stopTimer(timerContext, result);
-        return result;
+        stopTimer(timerContext);
+        return wrapResultSet(timerContext, result);
     }
 
 }

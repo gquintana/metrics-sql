@@ -34,10 +34,6 @@ import static org.junit.Assert.assertNull;
 public class DriverUrlPropertiesTest {
     public static class CustomMetricNamingStrategy extends DefaultMetricNamingStrategy {
 
-        public CustomMetricNamingStrategy(MetricRegistry metricRegistry) {
-            super(metricRegistry);
-        }
-        
     }
     @Test
     public void testProperties() {

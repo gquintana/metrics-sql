@@ -49,7 +49,9 @@ public final class ProxyClass {
     }
 
     public Class<?>[] getInterfaces() {
-        return interfaces;
+        Class<?>[] copy = new Class<?>[interfaces.length];
+        System.arraycopy(interfaces, 0, copy, 0, interfaces.length);
+        return copy;
     }
 
     @Override
@@ -72,8 +74,8 @@ public final class ProxyClass {
      * Create proxy class
      * @return Class of proxy for given classloader and interfaces
      */
-    public Class createClass() {
-        return Proxy.getProxyClass(getClassLoader(), getInterfaces());
+    public <T> Class<T> createClass() {
+        return (Class<T>) Proxy.getProxyClass(getClassLoader(), getInterfaces());
     }
     /**
      * Create proxy constructor
@@ -81,9 +83,9 @@ public final class ProxyClass {
      * Create proxy class
      * @return Constructor of proxy for given classloader and interfaces
      */
-    public Constructor createConstructor() {
+    public <T> Constructor<T> createConstructor() {
         try {
-            return createClass().getConstructor(InvocationHandler.class);
+            return this.<T>createClass().getConstructor(InvocationHandler.class);
         } catch (NoSuchMethodException noSuchMethodException) {
             throw new ProxyException(noSuchMethodException);
         }

@@ -37,9 +37,9 @@ import java.sql.*;
  */
 public class JdbcProxyFactory {
     /**
-     * Strategy used to get metric name
+     * Timer manager
      */
-    private final MetricNamingStrategy metricNamingStrategy;
+    private final TimerStarter timerStarter;
     /**
      * Proxy factory
      */
@@ -50,26 +50,28 @@ public class JdbcProxyFactory {
      * @param metricRegistry Metric registry to store metrics
      */
     public JdbcProxyFactory(MetricRegistry metricRegistry) {
-        this(new DefaultMetricNamingStrategy(metricRegistry));
+        this(metricRegistry, new DefaultMetricNamingStrategy());
     }
 
     /**
      * Constructor
      *
+     * @param registry Registry storing metrics
      * @param namingStrategy Naming strategy used to get metrics from SQL
      */
-    public JdbcProxyFactory(MetricNamingStrategy namingStrategy) {
-        this(namingStrategy, new ReflectProxyFactory());
+    public JdbcProxyFactory(MetricRegistry registry, MetricNamingStrategy namingStrategy) {
+        this(registry, namingStrategy, new ReflectProxyFactory());
     }
 
     /**
      * Constructor
      *
+     * @param registry Registry storing metrics
      * @param namingStrategy Naming strategy used to get metrics from SQL
      * @param proxyFactory AbstractProxyFactory to use for proxy creation
      */
-    public JdbcProxyFactory(MetricNamingStrategy namingStrategy, ProxyFactory proxyFactory) {
-        this.metricNamingStrategy = namingStrategy;
+    public JdbcProxyFactory(MetricRegistry registry, MetricNamingStrategy namingStrategy, ProxyFactory proxyFactory) {
+        this.timerStarter = new TimerStarter(registry, namingStrategy);
         this.proxyFactory = proxyFactory;
     }
     /**
@@ -85,155 +87,100 @@ public class JdbcProxyFactory {
     /**
      * Wrap a data source to monitor it.
      *
-     * @param connectionFactoryName Data source name
      * @param wrappedDataSource Data source to wrap
      * @return Wrapped data source
      */
-    public DataSource wrapDataSource(String connectionFactoryName, DataSource wrappedDataSource) {
-        return newProxy(new DataSourceProxyHandler(wrappedDataSource, connectionFactoryName, this));
+    public DataSource wrapDataSource(DataSource wrappedDataSource) {
+        return newProxy(new DataSourceProxyHandler(wrappedDataSource, this));
     }
 
     /**
      * Wrap an XA data source to monitor it.
      *
-     * @param connectionFactoryName Data source name
      * @param wrappedDataSource XA Data source to wrap
      * @return Wrapped XA data source
      */
-    public XADataSource wrapXADataSource(String connectionFactoryName, XADataSource wrappedDataSource) {
-        return newProxy(new XADataSourceProxyHandler(wrappedDataSource, connectionFactoryName, this));
+    public XADataSource wrapXADataSource(XADataSource wrappedDataSource) {
+        return newProxy(new XADataSourceProxyHandler(wrappedDataSource, this));
     }
 
     /**
      * Wrap a pooled connection to monitor it.
      *
-     * @param connectionFactoryName Data source/Driver name
      * @param wrappedConnection Pooled connection to wrap
      * @return Wrapped pooled connection
      */
-    public PooledConnection wrapPooledConnection(String connectionFactoryName, PooledConnection wrappedConnection) {
-        Timer.Context lifeTimerContext = metricNamingStrategy.startPooledConnectionTimer(connectionFactoryName);
-        return newProxy(new PooledConnectionProxyHandler<PooledConnection>(wrappedConnection, PooledConnection.class, connectionFactoryName, this, lifeTimerContext));
+    public PooledConnection wrapPooledConnection(PooledConnection wrappedConnection) {
+        Timer.Context lifeTimerContext = getTimerStarter().startConnectionTimer();
+        return newProxy(new PooledConnectionProxyHandler<PooledConnection>(wrappedConnection, PooledConnection.class, this, lifeTimerContext));
     }
 
     /**
      * Wrap an XA connection to monitor it.
      *
-     * @param connectionFactoryName Data source/Driver name
      * @param wrappedConnection XA connection to wrap
      * @return XA pooled connection
      */
-    public XAConnection wrapXAConnection(String connectionFactoryName, XAConnection wrappedConnection) {
-        Timer.Context lifeTimerContext = metricNamingStrategy.startPooledConnectionTimer(connectionFactoryName);
-        return newProxy(new PooledConnectionProxyHandler<XAConnection>(wrappedConnection, XAConnection.class, connectionFactoryName, this, lifeTimerContext));
+    public XAConnection wrapXAConnection(XAConnection wrappedConnection) {
+        Timer.Context lifeTimerContext = getTimerStarter().startConnectionTimer();
+        return newProxy(new PooledConnectionProxyHandler<XAConnection>(wrappedConnection, XAConnection.class, this, lifeTimerContext));
     }
 
     /**
      * Wrap a connection to monitor it.
      *
-     * @param connectionFactoryName Data source/Driver name
      * @param wrappedConnection Connection to wrap
      * @return Wrapped connection
      */
-    public Connection wrapConnection(String connectionFactoryName, Connection wrappedConnection) {
-        Timer.Context lifeTimerContext = metricNamingStrategy.startConnectionTimer(connectionFactoryName);
-        return newProxy(new ConnectionProxyHandler(wrappedConnection, connectionFactoryName, this, lifeTimerContext));
+    public Connection wrapConnection(Connection wrappedConnection) {
+        Timer.Context lifeTimerContext = timerStarter.startConnectionTimer();
+        return newProxy(new ConnectionProxyHandler(wrappedConnection, this, lifeTimerContext));
     }
     
     /**
      * Wrap a simple statement to monitor it.
      *
-     * @param connectionFactoryName Data source/Driver name
      * @param statement Statement to wrap
      * @return Wrapped statement
      */
-    public Statement wrapStatement(String connectionFactoryName, Statement statement) {
-        Timer.Context lifeTimerContext = metricNamingStrategy.startStatementTimer(connectionFactoryName);
-        return newProxy(new StatementProxyHandler(statement, connectionFactoryName, this, lifeTimerContext));
-    }
-
-    /**
-     * Start Timer when statement is executed
-     *
-     * @param connectionFactoryName DataSource/Driver name
-     * @param sql SQL query
-     * @return Started timer context or null
-     */
-    public StatementTimerContext startStatementExecuteTimer(String connectionFactoryName, String sql) {
-        return metricNamingStrategy.startStatementExecuteTimer(connectionFactoryName, sql);
+    public Statement wrapStatement(Statement statement) {
+        Timer.Context lifeTimerContext = getTimerStarter().startStatementLifeTimer();
+        return newProxy(new StatementProxyHandler(statement, this, lifeTimerContext));
     }
 
     /**
      * Wrap a prepared statement to monitor it.
      *
-     * @param connectionFactoryName Data source/Driver name
      * @param preparedStatement Prepared statement to wrap
-     * @param sql SQL used for creation
+     * @param sql SQL
      * @return Wrapped prepared statement
      */
-    public PreparedStatement wrapPreparedStatement(String connectionFactoryName, PreparedStatement preparedStatement, String sql) {
-        StatementTimerContext lifeTimerContext = metricNamingStrategy.startPreparedStatementTimer(connectionFactoryName, sql, null);
-        PreparedStatementProxyHandler proxyHandler;
-        if (lifeTimerContext==null) {
-            proxyHandler = new PreparedStatementProxyHandler(preparedStatement, connectionFactoryName, this, null, sql, null);
-        } else {
-            proxyHandler = new PreparedStatementProxyHandler(preparedStatement, connectionFactoryName, this, lifeTimerContext.getTimerContext(), lifeTimerContext.getSql(), lifeTimerContext.getSqlId());
-        }
-        return newProxy(proxyHandler);
-    }
-    /**
-     * Start timer measuring {@link PreparedStatement#execute() }
-     * @param connectionFactoryName Connection factory name
-     * @param sql SQL query
-     * @param sqlId SQL Id
-     * @return Started timer context or null
-     */
-    public StatementTimerContext startPreparedStatementExecuteTimer(String connectionFactoryName, String sql, String sqlId) {
-        return metricNamingStrategy.startPreparedStatementExecuteTimer(connectionFactoryName, sql, sqlId);
+    public PreparedStatement wrapPreparedStatement(PreparedStatement preparedStatement, String sql) {
+        StatementTimerContext lifeTimerContext = getTimerStarter().startPreparedStatementLifeTimer(sql);
+        return newProxy(new PreparedStatementProxyHandler(preparedStatement, this, lifeTimerContext));
     }
 
     /**
      * Wrap a callable statement to monitor it.
      *
-     * @param connectionFactoryName Data source/Driver name
      * @param callableStatement Prepared statement to wrap
-     * @param sql SQL used for creation
+     * @param sql SQL
      * @return Wrapped prepared statement
      */
-    public CallableStatement wrapCallableStatement(String connectionFactoryName, CallableStatement callableStatement, String sql) {
-        StatementTimerContext lifeTimerContext = metricNamingStrategy.startCallableStatementTimer(connectionFactoryName, sql, null);
-        CallableStatementProxyHandler proxyHandler;
-        if (lifeTimerContext==null) {
-            proxyHandler = new CallableStatementProxyHandler(callableStatement, connectionFactoryName, this, null, sql, null);
-        } else {
-            proxyHandler = new CallableStatementProxyHandler(callableStatement, connectionFactoryName, this, lifeTimerContext.getTimerContext(), lifeTimerContext.getSql(), lifeTimerContext.getSqlId());
-        }
-        return newProxy(proxyHandler);
-    }
-    /**
-     * Start timer measuring {@link CallableStatement#execute() }
-     *
-     * @param connectionFactoryName Connection factory name
-     * @param sql SQL query
-     * @param sqlId SQL Id
-     * @return Started timer context or null
-     */
-    public StatementTimerContext startCallableStatementExecuteTimer(String connectionFactoryName, String sql, String sqlId) {
-        return metricNamingStrategy.startCallableStatementExecuteTimer(connectionFactoryName, sql, sqlId);
+    public CallableStatement wrapCallableStatement(CallableStatement callableStatement, String sql) {
+        StatementTimerContext lifeTimerContext = getTimerStarter().startCallableStatementLifeTimer(sql);
+        return newProxy(new CallableStatementProxyHandler(callableStatement, this, lifeTimerContext));
     }
 
     /**
      * Wrap a result set to monitor it.
      *
-     * @param connectionFactoryName Data source/Driver name
      * @param resultSet set to wrap
-     * @param sql SQL
-     * @param sqlId  SQL Id
+     * @param lifeTimerContext Started timer
      * @return Wrapped prepared statement
      */
-    public ResultSet wrapResultSet(String connectionFactoryName, ResultSet resultSet, String sql, String sqlId) {
-        Timer.Context lifeTimerContext = metricNamingStrategy.startResultSetTimer(connectionFactoryName, sql, sqlId);
-        return (ResultSet) newProxy(new ResultSetProxyHandler(resultSet, getResultSetType(resultSet), connectionFactoryName, this, lifeTimerContext));
+    public ResultSet wrapResultSet(ResultSet resultSet, StatementTimerContext lifeTimerContext) {
+        return (ResultSet) newProxy(new ResultSetProxyHandler(resultSet, getResultSetType(resultSet), this, lifeTimerContext.getTimerContext()));
     }
     /**
      * Determine the interface implemented by this result set
@@ -266,5 +213,7 @@ public class JdbcProxyFactory {
         return resultSetType;
     }
 
-
+    public TimerStarter getTimerStarter() {
+        return timerStarter;
+    }
 }

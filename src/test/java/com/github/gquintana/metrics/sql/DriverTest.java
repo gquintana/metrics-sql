@@ -55,7 +55,7 @@ public class DriverTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(connection.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection.h2_driver"));
+        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection"));
         
     }
     @Test
@@ -69,7 +69,7 @@ public class DriverTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Statement.h2_driver.[select current_date].exec"));
+        assertNotNull(metricRegistry.getTimers().get("java.sql.Statement.[select current_date].exec"));
         
     }
     

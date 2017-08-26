@@ -36,20 +36,43 @@ public class MetricsSql {
      * Builder of {@link JdbcProxyFactory}
      */
     public static class Builder {
-        private final MetricNamingStrategy namingStrategy;
+        private final MetricRegistry registry;
+        private MetricNamingStrategy namingStrategy = new DefaultMetricNamingStrategy();
         private ProxyFactory proxyFactory = new ReflectProxyFactory();
         private JdbcProxyFactory jdbcProxyFactory;
-        private Builder(MetricNamingStrategy namingStrategy) {
-            this.namingStrategy = namingStrategy;
-        }
+
         private Builder(MetricRegistryHolder registryHolder) {
-            this.namingStrategy = new DefaultMetricNamingStrategy(registryHolder);
+            this.registry = registryHolder.getMetricRegistry();
         }
+
         public Builder(MetricRegistry registry) {
-            this.namingStrategy = new DefaultMetricNamingStrategy(registry);
+            this.registry = registry;
         }
+
+        /**
+         * Select naming strategy
+         *
+         * @param namingStrategy Strategy to name metrics
+         * @return Current builder
+         */
+        public Builder withNamingStrategy(MetricNamingStrategy namingStrategy) {
+            this.namingStrategy = namingStrategy;
+            return this;
+        }
+
+        /**
+         * Select default naming strategy
+         *
+         * @param databaseName Database name for metric naming
+         * @return Current builder
+         */
+        public Builder withDefaultNamingStrategy(String databaseName) {
+            return withNamingStrategy(new DefaultMetricNamingStrategy(databaseName));
+        }
+
         /**
          * Select factory of proxies
+         *
          * @param proxyFactory Strategy to create proxies
          * @return Current builder
          */
@@ -60,55 +83,55 @@ public class MetricsSql {
 
         /**
          * Build {@link JdbcProxyFactory}
+         *
          * @return Built {@link JdbcProxyFactory}
          */
+
         public JdbcProxyFactory build() {
             if (jdbcProxyFactory == null) {
-                jdbcProxyFactory = new JdbcProxyFactory(namingStrategy, proxyFactory);
+                jdbcProxyFactory = new JdbcProxyFactory(registry, namingStrategy, proxyFactory);
             }
             return jdbcProxyFactory;
         }
+
         /**
          * Wrap an existing {@link DataSource} to add metrics
-         * @param databaseName Database name for metric naming
-         * @param dataSource {@link DataSource} to wrap
+         *
+         * @param dataSource   {@link DataSource} to wrap
          * @return Wrapped {@link DataSource}
          */
-        public DataSource wrap(String databaseName, DataSource dataSource) {
-            return build().wrapDataSource(databaseName, dataSource);
-        } 
+        public DataSource wrap(DataSource dataSource) {
+            return build().wrapDataSource(dataSource);
+        }
+
         /**
          * Wrap an existing {@link Connection} to add connection
-         * @param databaseName Database name for metric naming
-         * @param connection {@link Connection} to wrap
+         *
+         * @param connection   {@link Connection} to wrap
          * @return Wrapped {@link Connection}
          */
-        public Connection wrap(String databaseName, Connection connection) {
-            return build().wrapConnection(databaseName, connection);
-        } 
+        public Connection wrap(Connection connection) {
+            return build().wrapConnection(connection);
+        }
     }
+
     /**
      * Select Default naming strategy and Metric registry
+     *
      * @param registry Metrics registry
      * @return Builder of {@link JdbcProxyFactory}
      */
     public static Builder forRegistry(MetricRegistry registry) {
         return new Builder(registry);
     }
+
     /**
      * Select Default naming strategy and Metric registry holder
+     *
      * @param registryHolder Metrics registry provider or holder
      * @return Builder of {@link JdbcProxyFactory}
      */
     public static Builder forRegistryHolder(MetricRegistryHolder registryHolder) {
         return new Builder(registryHolder);
-    }
-    /**
-     * Configure Metric naming strategy
-     * @param namingStrategy Strategy to name metrics
-     * @return Builder of {@link JdbcProxyFactory}
-     */
-    public static Builder withMetricNamingStrategy(MetricNamingStrategy namingStrategy) {
-        return new Builder(namingStrategy);
     }
 }

@@ -29,12 +29,13 @@ import java.sql.Statement;
 
 /**
  * Base JDBC proxy handler for Statements
+ *
  * @param <T> Statement type
  */
 public abstract class AbstractStatementProxyHandler<T extends Statement> extends JdbcProxyHandler<T> {
 
-    public AbstractStatementProxyHandler(T delegate, Class<T> delegateType, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
-        super(delegate, delegateType, name, proxyFactory, lifeTimerContext);
+    public AbstractStatementProxyHandler(T delegate, Class<T> delegateType, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
+        super(delegate, delegateType, proxyFactory, lifeTimerContext);
     }
 
     @Override
@@ -63,13 +64,17 @@ public abstract class AbstractStatementProxyHandler<T extends Statement> extends
     public InvocationFilter getInvocationFilter() {
         return THIS_INVOCATION_FILTER;
     }
-    protected Object stopTimer(StatementTimerContext timerContext, Object result) {
-        if (timerContext!=null) {
-            stopTimer(timerContext.getTimerContext());
-            if (result instanceof ResultSet) {
-                result = proxyFactory.wrapResultSet(name, (ResultSet) result, timerContext.getSql(), timerContext.getSqlId());
-            }
+
+    protected static void stopTimer(StatementTimerContext timerContext) {
+        stopTimer(timerContext.getTimerContext());
+    }
+
+    protected Object wrapResultSet(StatementTimerContext timerContext, Object result) {
+        if (result instanceof ResultSet) {
+            StatementTimerContext timerContext1 = getTimerStarter().startResultSetLifeTimer(timerContext.getSql(), timerContext.getSqlId());
+            return proxyFactory.wrapResultSet((ResultSet) result, timerContext1);
+        } else {
+            return result;
         }
-        return result;
     }
 }

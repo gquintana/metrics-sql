@@ -48,27 +48,9 @@ public class Driver implements java.sql.Driver {
             throw new IllegalStateException(e);
         }
     }
-    private static <T> T newInstance(Class<T> clazz, Object ... params) throws SQLException {
+    private static <T> T newInstance(Class<T> clazz) throws SQLException {
         try {
-            if (params == null || params.length==0) {
-                return clazz.newInstance();
-            } else {
-                for(Constructor<?> ctor: clazz.getConstructors()) {
-                    if (ctor.getParameterTypes().length==params.length) {
-                        int paramIndex=0;
-                        for(Class<?> paramType:ctor.getParameterTypes()) {
-                            if (!paramType.isInstance(params[paramIndex])) {
-                                break;
-                            }
-                            paramIndex++;
-                        }
-                        if (paramIndex==params.length) {
-                            return clazz.cast(ctor.newInstance(params));
-                        }
-                    }
-                }
-                throw new SQLException("Constructor not found for "+clazz);
-            }
+            return clazz.newInstance();
         } catch (ReflectiveOperationException reflectiveOperationException) {
             throw new SQLException(reflectiveOperationException);
         }
@@ -86,9 +68,9 @@ public class Driver implements java.sql.Driver {
         // Wrap connection
         ProxyFactory factory = newInstance(driverUrl.getProxyFactoryClass());
         MetricRegistryHolder registryHolder = newInstance(driverUrl.getRegistryHolderClass());
-        MetricNamingStrategy namingStrategy = newInstance(driverUrl.getNamingStrategyClass(), registryHolder);
-        JdbcProxyFactory proxyFactory = new JdbcProxyFactory(namingStrategy, factory);
-        return proxyFactory.wrapConnection(driverUrl.getName(), rawConnection);
+        MetricNamingStrategy namingStrategy = newInstance(driverUrl.getNamingStrategyClass());
+        JdbcProxyFactory proxyFactory = new JdbcProxyFactory(registryHolder.getMetricRegistry(), namingStrategy, factory);
+        return proxyFactory.wrapConnection(rawConnection);
     }
 
     @Override

@@ -57,7 +57,7 @@ public class JmxReportingTest {
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        dataSource = proxyFactory.wrapDataSource("test", rawDataSource);
+        dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
     @After
     public void tearDown() throws SQLException {

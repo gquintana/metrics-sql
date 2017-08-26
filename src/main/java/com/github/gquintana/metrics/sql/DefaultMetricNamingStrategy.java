@@ -32,122 +32,120 @@ import java.sql.*;
  * Defaut implementation of {@link MetricNamingStrategy}
  */
 public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
-    private final MetricRegistryHolder metricRegistryHolder;
+    private final String databaseName;
 
-    public DefaultMetricNamingStrategy(MetricRegistryHolder metricRegistryHolder) {
-        this.metricRegistryHolder = metricRegistryHolder;
-    }
-
-    public DefaultMetricNamingStrategy(MetricRegistry metricRegistry) {
-        this.metricRegistryHolder = new DefaultMetricRegistryHolder(metricRegistry);
+    public DefaultMetricNamingStrategy() {
+        databaseName = "";
     }
 
-    public MetricRegistryHolder getMetricRegistryHolder() {
-        return metricRegistryHolder;
+    /**
+     * @param databaseName Database name
+     */
+    public DefaultMetricNamingStrategy(String databaseName) {
+        this.databaseName = databaseName;
     }
-    
-    protected MetricRegistry getMetricRegistry() {
-        return metricRegistryHolder.getMetricRegistry();
-    }
+
     /**
      * Generate SQL Id from SQL query.
      * This method can be used to normalize SQL queries, remove special characters,
      * truncate long SQL queries...
+     *
      * @param sql Input SQL
      * @return [sql]
      */
-    protected String getSqlId(String sql) {
-        return "["+sql.toLowerCase()+"]";
+    public String getSqlId(String sql) {
+        return "[" + sql.toLowerCase() + "]";
     }
+
     /**
      * Start Timer for given Class and names
+     *
      * @param clazz JDBC Class
      * @param names Query, event...
-     * @return Started timer
+     * @return geted timer
      */
-    protected Timer.Context startTimer(Class<?> clazz, String ... names) {
-        return getMetricRegistry().timer(MetricRegistry.name(clazz, names)).time();
+    protected String getTimer(Class<?> clazz, String... names) {
+        return MetricRegistry.name(clazz, names);
     }
+
+    protected String getStatementTimer(Class<? extends Statement> clazz, String sql, String sqlId) {
+        final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
+        return getTimer(clazz, databaseName, lSqlId);
+    }
+
+    protected String getStatementExecuteTimer(Class<? extends Statement> clazz, String sql, String sqlId) {
+        final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
+        return getTimer(clazz, databaseName, lSqlId, "exec");
+    }
+
     /**
      * {@inheritDoc}
      * Example: java.sql.PooledConnection.database
      */
-    public Timer.Context startPooledConnectionTimer(String databaseName) {
-        return startTimer(PooledConnection.class, databaseName);
+    public String getPooledConnectionLifeTimer() {
+        return getTimer(PooledConnection.class, databaseName);
     }
 
     /**
      * {@inheritDoc}
      * Example: java.sql.Connection.database
      */
-    public Timer.Context startConnectionTimer(String databaseName) {
-        return startTimer(Connection.class, databaseName);
+    public String getConnectionLifeTimer() {
+        return getTimer(Connection.class, databaseName);
     }
 
     /**
      * {@inheritDoc}
      * Example: java.sql.Statement.database
      */
-    public Timer.Context startStatementTimer(String databaseName) {
-        return startTimer(Statement.class, databaseName);
-    }
-
-    protected StatementTimerContext startStatementTimer(Class<? extends Statement> clazz, String databaseName, String sql, String sqlId) {
-        final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
-        final Timer.Context timerContext = startTimer(clazz, databaseName, lSqlId);
-        return new StatementTimerContext(timerContext, sql, lSqlId);
-    }
-
-    protected StatementTimerContext startStatementExecuteTimer(Class<? extends Statement> clazz, String databaseName, String sql, String sqlId) {
-        final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
-        final Timer.Context timerContext = startTimer(clazz, databaseName, lSqlId, "exec");
-        return new StatementTimerContext(timerContext, sql, lSqlId);
+    public String getStatementLifeTimer() {
+        return getTimer(Statement.class, databaseName);
     }
 
     /**
      * {@inheritDoc}
      * Example: java.sql.Statement.database.[sqlId].exec
      */
-    public StatementTimerContext startStatementExecuteTimer(String databaseName, String sql) {
-        return startStatementExecuteTimer(Statement.class, databaseName, sql, null);
+    public String getStatementExecuteTimer(String sql, String sqlId) {
+        return getStatementExecuteTimer(Statement.class, sql, sqlId);
     }
 
     /**
      * {@inheritDoc}
      * Example: java.sql.PreparedStatement.database.[sqlId]
      */
-    public StatementTimerContext startPreparedStatementTimer(String databaseName, String sql, String sqlId) {
-        return startStatementTimer(PreparedStatement.class, databaseName, sql, sqlId);
+    public String getPreparedStatementLifeTimer(String sql, String sqlId) {
+        return getStatementTimer(PreparedStatement.class, sql, sqlId);
     }
 
     /**
      * {@inheritDoc}
      * Example: java.sql.PreparedStatement.database.[sqlId].exec
      */
-    public StatementTimerContext startPreparedStatementExecuteTimer(String databaseName, String sql, String sqlId) {
-        return startStatementExecuteTimer(PreparedStatement.class, databaseName, sql, sqlId);
+    public String getPreparedStatementExecuteTimer(String sql, String sqlId) {
+        return getStatementExecuteTimer(PreparedStatement.class, sql, sqlId);
     }
 
     /**
      * {@inheritDoc}
      * Example: java.sql.CallableStatement.database.[sqlId]
      */
-    public StatementTimerContext startCallableStatementTimer(String databaseName, String sql, String sqlId) {
-        return startStatementTimer(CallableStatement.class, databaseName, sql, sqlId);
+    public String getCallableStatementLifeTimer(String sql, String sqlId) {
+        return getStatementTimer(CallableStatement.class, sql, sqlId);
     }
 
     /**
      * {@inheritDoc}
      * Example: java.sql.CallableStatement.database.[sqlId].exec
      */
-    public StatementTimerContext startCallableStatementExecuteTimer(String databaseName, String sql, String sqlId) {
-        return startStatementExecuteTimer(CallableStatement.class, databaseName, sql, sqlId);
+    public String getCallableStatementExecuteTimer(String sql, String sqlId) {
+        return getStatementExecuteTimer(CallableStatement.class, sql, sqlId);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Timer.Context startResultSetTimer(String databaseName, String sql, String sqlId) {
-        return startTimer(ResultSet.class, databaseName, sqlId);
+    public String getResultSetLifeTimer(String sql, String sqlId) {
+        return getTimer(ResultSet.class, databaseName, sqlId);
     }
 }

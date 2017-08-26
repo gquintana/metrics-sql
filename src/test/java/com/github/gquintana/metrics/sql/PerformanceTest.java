@@ -79,7 +79,7 @@ public class PerformanceTest {
         } else {
             proxyFactory = MetricsSql.forRegistry(metricRegistry)
                     .withProxyFactory(factory).build();
-            dataSource = proxyFactory.wrapDataSource("test", rawDataSource);
+            dataSource = proxyFactory.wrapDataSource(rawDataSource);
         }
     }
     @After

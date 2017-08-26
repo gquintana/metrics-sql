@@ -33,8 +33,8 @@ import java.sql.ResultSet;
  */
 public class ResultSetProxyHandler<T extends ResultSet> extends JdbcProxyHandler<T> {
 
-    public ResultSetProxyHandler(T delegate, Class<T> delegateType, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
-        super(delegate, delegateType, name, proxyFactory, lifeTimerContext);
+    public ResultSetProxyHandler(T delegate, Class<T> delegateType, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
+        super(delegate, delegateType, proxyFactory, lifeTimerContext);
     }
 
     private static final InvocationFilter THIS_INVOCATION_FILTER = new MethodNamesInvocationFilter("isWrapperFor", "unwrap", "close");

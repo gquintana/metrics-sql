@@ -63,12 +63,12 @@ public class CsvReportingTest {
         metricRegistry = new MetricRegistry();
         csvReporter = CsvReporter.forRegistry(metricRegistry)
                 .build(csvFolder);
-        proxyFactory = new JdbcProxyFactory(metricRegistry);
+        proxyFactory = new JdbcProxyFactory(metricRegistry, new DefaultMetricNamingStrategy("csv"));
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        dataSource = proxyFactory.wrapDataSource("test", rawDataSource);
+        dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
     @After
     public void tearDown() throws SQLException {

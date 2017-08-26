@@ -38,12 +38,11 @@ public class ConnectionProxyHandler extends JdbcProxyHandler<Connection> {
      * Main constructor
      *
      * @param delegate Wrapped connection
-     * @param databaseName Database name
      * @param proxyFactory Strategy to create proxies
      * @param lifeTimerContext Started timed corresponding to connection life
      */
-    public ConnectionProxyHandler(Connection delegate, String databaseName, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
-        super(delegate, Connection.class, databaseName, proxyFactory, lifeTimerContext);
+    public ConnectionProxyHandler(Connection delegate, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
+        super(delegate, Connection.class, proxyFactory, lifeTimerContext);
     }
 
     @Override
@@ -75,7 +74,7 @@ public class ConnectionProxyHandler extends JdbcProxyHandler<Connection> {
      */
     private Statement createStatement(MethodInvocation<Connection> methodInvocation) throws Throwable {
         Statement result = (Statement) methodInvocation.proceed();
-        result = proxyFactory.wrapStatement(name, result);
+        result = proxyFactory.wrapStatement(result);
         return result;
     }
 
@@ -85,8 +84,9 @@ public class ConnectionProxyHandler extends JdbcProxyHandler<Connection> {
      * @return Proxified {@link PreparedStatement}
      */
     private PreparedStatement prepareStatement(MethodInvocation<Connection> methodInvocation) throws Throwable {
+        String sql = methodInvocation.getArgAt(0, String.class);
         PreparedStatement result = (PreparedStatement) methodInvocation.proceed();
-        result = proxyFactory.wrapPreparedStatement(name, result, methodInvocation.getArgAt(0, String.class));
+        result = proxyFactory.wrapPreparedStatement(result, sql);
         return result;
     }
 
@@ -96,8 +96,9 @@ public class ConnectionProxyHandler extends JdbcProxyHandler<Connection> {
      * @return Proxified {@link CallableStatement}
      */
     private CallableStatement prepareCall(MethodInvocation<Connection> methodInvocation) throws Throwable {
+        String sql = methodInvocation.getArgAt(0, String.class);
         CallableStatement result = (CallableStatement) methodInvocation.proceed();
-        result = proxyFactory.wrapCallableStatement(name, result, methodInvocation.getArgAt(0, String.class));
+        result = proxyFactory.wrapCallableStatement(result, sql);
         return result;
     }
 }

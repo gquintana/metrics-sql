@@ -46,17 +46,17 @@ public class ConnectionTest {
     @Test
     public void testConnectionLife() throws SQLException {
         // Act
-        Connection connection = proxyFactory.wrapConnection("test", H2DbUtil.openConnection());
+        Connection connection = proxyFactory.wrapConnection(H2DbUtil.openConnection());
         H2DbUtil.close(connection);
         // Assert
         assertNotNull(connection);
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection.test"));
+        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection"));
         
     }
     @Test
     public void testConnectionStatement() throws SQLException {
         // Act
-        Connection connection = proxyFactory.wrapConnection("test", H2DbUtil.openConnection());
+        Connection connection = proxyFactory.wrapConnection(H2DbUtil.openConnection());
         Statement statement = connection.createStatement();
         PreparedStatement preparedStatement = connection.prepareCall("select 1 from dual");
         H2DbUtil.close(preparedStatement, statement, connection);
@@ -67,7 +67,7 @@ public class ConnectionTest {
     @Test
     public void testConnectionNotTimed() throws SQLException {
         // Act
-        Connection connection = proxyFactory.wrapConnection("test", H2DbUtil.openConnection());
+        Connection connection = proxyFactory.wrapConnection(H2DbUtil.openConnection());
         String dbProduct = connection.getMetaData().getDatabaseProductName();
         // Assert
         assertTrue(dbProduct.toLowerCase().contains("h2"));
@@ -75,7 +75,7 @@ public class ConnectionTest {
         @Test
     public void testResultSetUnwrap() throws SQLException {
         // Act
-        Connection connection = proxyFactory.wrapConnection("test", H2DbUtil.openConnection());
+        Connection connection = proxyFactory.wrapConnection(H2DbUtil.openConnection());
         
         // Assert        
         assertTrue(connection.isWrapperFor(org.h2.jdbc.JdbcConnection.class));

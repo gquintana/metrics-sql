@@ -51,7 +51,7 @@ public class PreparedStatementTest {
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        dataSource = proxyFactory.wrapDataSource("test", rawDataSource);
+        dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
     @After
     public void tearDown() throws SQLException {
@@ -69,7 +69,7 @@ public class PreparedStatementTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(statement.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.PreparedStatement.test.[select * from metrics_test]"));
+        assertNotNull(metricRegistry.getTimers().get("java.sql.PreparedStatement.[select * from metrics_test]"));
         
     }
     @Test
@@ -82,7 +82,7 @@ public class PreparedStatementTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.PreparedStatement.test.[select * from metrics_test].exec"));
+        assertNotNull(metricRegistry.getTimers().get("java.sql.PreparedStatement.[select * from metrics_test].exec"));
         
     }
     @Test(expected = Exception.class)
@@ -95,7 +95,7 @@ public class PreparedStatementTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.PreparedStatement.test.[select * from metrics_test order by created desc].exec"));
+        assertNotNull(metricRegistry.getTimers().get("java.sql.PreparedStatement.[select * from metrics_test order by created desc].exec"));
         
     }
 }

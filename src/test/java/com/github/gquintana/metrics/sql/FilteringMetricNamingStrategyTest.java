@@ -44,12 +44,12 @@ public class FilteringMetricNamingStrategyTest {
     @Before
     public void setUp() throws SQLException {
         metricRegistry = new MetricRegistry();
-        proxyFactory = new JdbcProxyFactory(new FilteringMetricNamingStrategy(metricRegistry));
+        proxyFactory = new JdbcProxyFactory(metricRegistry, new FilteringMetricNamingStrategy());
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        dataSource = proxyFactory.wrapDataSource("test", rawDataSource);
+        dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
     @After
     public void tearDown() throws SQLException {
@@ -68,10 +68,10 @@ public class FilteringMetricNamingStrategyTest {
         // Assert
         assertTrue(Proxy.isProxyClass(statement.getClass()));
         final SortedMap<String, Timer> timers = metricRegistry.getTimers();
-        assertNull(timers.get("java.sql.Connection.test"));
-        assertNull(timers.get("java.sql.PreparedStatement.test.[select * from metrics_test]"));
-        assertNotNull(timers.get("java.sql.PreparedStatement.test.[select * from metrics_test].exec"));        
-        assertNotNull(timers.get("java.sql.ResultSet.test.[select * from metrics_test]"));        
+        assertNull(timers.get("java.sql.Connection"));
+        assertNull(timers.get("java.sql.PreparedStatement.[select * from metrics_test]"));
+        assertNotNull(timers.get("java.sql.PreparedStatement.[select * from metrics_test].exec"));
+        assertNotNull(timers.get("java.sql.ResultSet.[select * from metrics_test]"));
     }
     @Test
     public void testCallableStatement() throws SQLException {
@@ -83,9 +83,9 @@ public class FilteringMetricNamingStrategyTest {
         // Assert
         assertTrue(Proxy.isProxyClass(statement.getClass()));
         final SortedMap<String, Timer> timers = metricRegistry.getTimers();
-        assertNull(timers.get("java.sql.Connection.test"));
-        assertNull(timers.get("java.sql.CallableStatement.test.[select * from metrics_test]"));
-        assertNotNull(timers.get("java.sql.CallableStatement.test.[select * from metrics_test].exec"));        
-        assertNotNull(timers.get("java.sql.ResultSet.test.[select * from metrics_test]"));        
+        assertNull(timers.get("java.sql.Connection"));
+        assertNull(timers.get("java.sql.CallableStatement.[select * from metrics_test]"));
+        assertNotNull(timers.get("java.sql.CallableStatement.[select * from metrics_test].exec"));
+        assertNotNull(timers.get("java.sql.ResultSet.[select * from metrics_test]"));
     }
 }

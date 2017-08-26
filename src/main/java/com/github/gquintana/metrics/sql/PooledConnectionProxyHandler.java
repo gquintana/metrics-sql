@@ -32,8 +32,8 @@ import java.sql.Connection;
  */
 public class PooledConnectionProxyHandler<T extends PooledConnection> extends JdbcProxyHandler<T> {
 
-    public PooledConnectionProxyHandler(T delegate, Class<T> delegateType, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
-        super(delegate, delegateType, name, proxyFactory, lifeTimerContext);
+    public PooledConnectionProxyHandler(T delegate, Class<T> delegateType, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
+        super(delegate, delegateType, proxyFactory, lifeTimerContext);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class PooledConnectionProxyHandler<T extends PooledConnection> extends Jd
 
     private Connection getConnection(MethodInvocation<T> methodInvocation) throws Throwable {
         Connection connection = (Connection) methodInvocation.proceed();
-        connection = proxyFactory.wrapConnection(name, connection);
+        connection = proxyFactory.wrapConnection(connection);
         return connection;
     }
 }

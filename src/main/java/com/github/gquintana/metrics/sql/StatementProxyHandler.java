@@ -31,8 +31,8 @@ import java.sql.Statement;
  */
 public class StatementProxyHandler extends AbstractStatementProxyHandler<Statement> {
 
-    public StatementProxyHandler(Statement delegate, String name, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
-        super(delegate, Statement.class, name, proxyFactory, lifeTimerContext);
+    public StatementProxyHandler(Statement delegate, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
+        super(delegate, Statement.class, proxyFactory, lifeTimerContext);
     }
 
     @Override
@@ -40,9 +40,10 @@ public class StatementProxyHandler extends AbstractStatementProxyHandler<Stateme
         Object result;
         if (methodInvocation.getArgCount() > 0) {
             final String sql = methodInvocation.getArgAt(0, String.class);
-            final StatementTimerContext timerContext = proxyFactory.startStatementExecuteTimer(name, sql);
+            final StatementTimerContext timerContext = getTimerStarter().startStatementExecuteTimer(sql);
             result = methodInvocation.proceed();
-            result = stopTimer(timerContext, result);
+            stopTimer(timerContext);
+            result = wrapResultSet(timerContext, result);
         } else {
             result = methodInvocation.proceed();
         }
