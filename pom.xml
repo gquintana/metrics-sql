@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.gquintana.metrics</groupId>
     <artifactId>metrics-sql</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.0</version>
     <packaging>jar</packaging>
     <name>Metrics SQL</name>
 
@@ -117,7 +117,7 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <dependencyConvergence/>
+                                <dependencyConvergence />
                                 <requireMavenVersion>
                                     <version>3</version>
                                 </requireMavenVersion>
