@@ -20,9 +20,9 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
-import com.github.gquintana.metrics.proxy.AbstractProxyFactory;
 import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.CachingProxyFactory;
+import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
 import com.github.gquintana.metrics.util.StaticMetricRegistryHolder;
@@ -145,8 +145,8 @@ class DriverUrl {
     public Class<? extends Driver> getDriverClass() {
         return getProperty("metrics_driver", Class.class);
     }
-    public Class<? extends AbstractProxyFactory> getProxyFactoryClass() {
-        Class<? extends AbstractProxyFactory> factoryClass;
+    public Class<? extends ProxyFactory> getProxyFactoryClass() {
+        Class<? extends ProxyFactory> factoryClass;
         String s = getProperty("metrics_proxy_factory", String.class);
         if (s==null || s.equals("reflect")) {
             factoryClass = ReflectProxyFactory.class;

@@ -23,9 +23,9 @@ package com.github.gquintana.metrics.sql;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
-import com.github.gquintana.metrics.proxy.AbstractProxyFactory;
 import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.CachingProxyFactory;
+import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 import com.github.gquintana.metrics.util.ParametersBuilder;
 import org.junit.After;
@@ -47,13 +47,13 @@ import java.util.Collection;
 public class PerformanceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceTest.class);
     private final String name;
-    private final AbstractProxyFactory factory;
+    private final ProxyFactory factory;
     private MetricRegistry metricRegistry;
     private JdbcProxyFactory proxyFactory;
     private DataSource rawDataSource;
     private DataSource dataSource;
 
-    public PerformanceTest(String name, AbstractProxyFactory factory) {
+    public PerformanceTest(String name, ProxyFactory factory) {
         this.name = name;
         this.factory = factory;
     }

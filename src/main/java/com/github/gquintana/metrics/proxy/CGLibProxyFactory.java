@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Proxy factory based on CGLib
  */
-public class CGLibProxyFactory extends AbstractProxyFactory {
+public class CGLibProxyFactory implements ProxyFactory {
 
     private final Map<ProxyClass, Class> proxyClasses = new ConcurrentHashMap<ProxyClass, Class>();
     private static final Class[] ADAPTER_CALLBACK_TYPES = new Class[]{

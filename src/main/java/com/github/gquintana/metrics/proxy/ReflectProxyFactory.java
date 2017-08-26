@@ -26,7 +26,7 @@ import java.lang.reflect.Proxy;
 /**
  * Factory of proxies producing proxies based on Java reflection
  */
-public class ReflectProxyFactory extends AbstractProxyFactory {
+public class ReflectProxyFactory implements ProxyFactory {
 	/**
 	 * {@inheritDoc}
 	 */

@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Performance of proxy instantiation is improved (even faster than CGLib).
  * But it may lead to classloader memory leaks.
  */
-public class CachingProxyFactory extends AbstractProxyFactory {
+public class CachingProxyFactory implements ProxyFactory {
     private final ConcurrentHashMap<ProxyClass, Constructor<?>> constructorCache = new ConcurrentHashMap<>();
     @Override
     public <T> T newProxy(ProxyHandler<T> proxyHandler, ProxyClass proxyClass) {
