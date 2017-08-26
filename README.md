@@ -7,6 +7,22 @@ and measure SQL execution times.
 [![Coverage Status](https://coveralls.io/repos/github/gquintana/metrics-sql/badge.svg?branch=master)](https://coveralls.io/github/gquintana/metrics-sql?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.gquintana.metrics/metrics-sql/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.gquintana.metrics/metrics-sql/)
 
+## Supported metrics
+
+| Description                                                     | Default metric name                                         | Metric type |
+|-----------------------------------------------------------------|-------------------------------------------------------------|-------------|
+| Connection life (between getConnection() and close())           | `java.sql.Connection                                      ` | Timer       |
+| Statement life (between createStatement() and close())          | `java.sql.Statement                                       ` | Timer       |
+| Statement execution (execute(), executeQuery()...)              | `java.sql.Statement.[select * from my_table].exec         ` | Timer       |
+| PreparedStatement life (between prepareStatement() and close()) | `java.sql.PreparedStatement.[select * from my_table]      ` | Timer       |
+| PreparedStatement execution (execute(), executeQuery()...)      | `java.sql.PreparedStatement.[select * from my_table].exec ` | Timer       |
+| CallableStatement life (between prepareCall() and close())      | `java.sql.CallableStatement.[call_something()]            ` | Timer       |
+| CallableStatement execution (execute(), executeQuery()...)      | `java.sql.CallableStatement.[call_something()].exec       ` | Timer       |
+| ResultSet life (between executeQuery.() and close()..)          | `java.sql.ResultSet.[select * from my_table]              ` | Timer       |
+| ResultSet rows (next())                                         | `java.sql.ResultSet.[select * from my_table].rows         ` | Meter       |
+
+Metric naming is tunable, to be more Graphite or InfluxDB compliant, see MetricNamingStrategy.
+Metering can be disabled per metric, you can select which metrics you (don't) want.
 
 ## Setup
 
@@ -17,7 +33,7 @@ Wrap your existing DataSource using `JdbcProxyFactory` or `MetricsSql` builder c
 ```java
     metricRegistry = new MetricRegistry();
     dataSource = MetricsSql.forRegistry(metricRegistry)
-                    .wrap("mysql", mysqlDataSource);
+                    .wrap(mysqlDataSource);
 ```
 The String *mysql* is a datasource Id used in metric names.
 
@@ -28,7 +44,7 @@ Same as DataSource
 ```java
     metricRegistry = new MetricRegistry();
     connection = MetricsSql.forRegistry(metricRegistry)
-                    .wrap("mysql", mysqlConnection);
+                    .wrap(mysqlConnection);
 ```
 
 ### Driver level
@@ -39,7 +55,7 @@ Same as DataSource
 Examples:
 
 ```
-jdbc:metrics:mysql://localhost:3306/sakila?profileSQL=true&metrics_name=sakila
+jdbc:metrics:mysql://localhost:3306/sakila?profileSQL=true
 jdbc:metrics:postgresql://localhost/demo?metrics_driver=org.postgresql.Driver&ssl=true
 jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE;metrics_driver=org.h2.Driver;metrics_proxy_factory=caching
 ```
@@ -47,7 +63,6 @@ jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE;metrics_driver=org.
 The driver supports several options:
 
 * `metrics_driver`: the real driver class to wrap
-* `metrics_name`: the database name used in metric names: defaults to xxx_driver
 * `metrics_registry_holder`: the strategy used to locate the Metric registry: class name implementing `MetricRegistryHolder`, defaults to `StaticMetricRegistryHolder`
 * `metrics_naming_strategy`: the strategy used to generate what should be metered and the timer names: class name implementing `MetricNamingStrategy`
 * `metrics_proxy_factory`: the strategy used to create proxies: either `reflect` (the default), `cglib` or `caching`, 
