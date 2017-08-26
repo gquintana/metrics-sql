@@ -21,9 +21,6 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.github.gquintana.metrics.util.DefaultMetricRegistryHolder;
-import com.github.gquintana.metrics.util.MetricRegistryHolder;
 
 import javax.sql.PooledConnection;
 import java.sql.*;
@@ -64,18 +61,18 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * @param names Query, event...
      * @return geted timer
      */
-    protected String getTimer(Class<?> clazz, String... names) {
+    protected String getMetric(Class<?> clazz, String... names) {
         return MetricRegistry.name(clazz, names);
     }
 
     protected String getStatementTimer(Class<? extends Statement> clazz, String sql, String sqlId) {
         final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
-        return getTimer(clazz, databaseName, lSqlId);
+        return getMetric(clazz, databaseName, lSqlId);
     }
 
     protected String getStatementExecuteTimer(Class<? extends Statement> clazz, String sql, String sqlId) {
         final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
-        return getTimer(clazz, databaseName, lSqlId, "exec");
+        return getMetric(clazz, databaseName, lSqlId, "exec");
     }
 
     /**
@@ -83,7 +80,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * Example: java.sql.PooledConnection.database
      */
     public String getPooledConnectionLifeTimer() {
-        return getTimer(PooledConnection.class, databaseName);
+        return getMetric(PooledConnection.class, databaseName);
     }
 
     /**
@@ -91,7 +88,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * Example: java.sql.Connection.database
      */
     public String getConnectionLifeTimer() {
-        return getTimer(Connection.class, databaseName);
+        return getMetric(Connection.class, databaseName);
     }
 
     /**
@@ -99,7 +96,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * Example: java.sql.Statement.database
      */
     public String getStatementLifeTimer() {
-        return getTimer(Statement.class, databaseName);
+        return getMetric(Statement.class, databaseName);
     }
 
     /**
@@ -146,6 +143,14 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * {@inheritDoc}
      */
     public String getResultSetLifeTimer(String sql, String sqlId) {
-        return getTimer(ResultSet.class, databaseName, sqlId);
+        return getMetric(ResultSet.class, databaseName, sqlId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getResultSetRowMeter(String sql, String sqlId) {
+        return getMetric(ResultSet.class, databaseName, sqlId, "rows");
     }
 }

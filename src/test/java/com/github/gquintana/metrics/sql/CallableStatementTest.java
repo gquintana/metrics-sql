@@ -27,11 +27,9 @@ import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Proxy;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -40,18 +38,16 @@ import static org.junit.Assert.assertTrue;
  */
 public class CallableStatementTest {
     private MetricRegistry metricRegistry;
-    private JdbcProxyFactory proxyFactory;
     private DataSource rawDataSource;
     private DataSource dataSource;
     @Before
     public void setUp() throws SQLException {
         metricRegistry = new MetricRegistry();
-        proxyFactory = new JdbcProxyFactory(metricRegistry);
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        dataSource = proxyFactory.wrapDataSource(rawDataSource);
+        dataSource = MetricsSql.forRegistry(metricRegistry).wrap(rawDataSource);
     }
     @After
     public void tearDown() throws SQLException {
@@ -98,4 +94,19 @@ public class CallableStatementTest {
         assertNotNull(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test order by created desc].exec"));
         
     }
+
+    @Test
+    public void testCallableStatementExec_Direct() throws SQLException {
+        // Act
+        Connection connection = rawDataSource.getConnection();
+        String sql = "select * from METRICS_TEST order by ID";
+        CallableStatement statement = MetricsSql.forRegistry(metricRegistry).wrap(connection.prepareCall(sql), sql);
+        ResultSet resultSet = statement.executeQuery();
+        H2DbUtil.close(resultSet, statement, connection);
+        // Assert
+        assertNotNull(connection);
+        assertTrue(Proxy.isProxyClass(resultSet.getClass()));
+        assertEquals(1, metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test order by id].exec").getCount());
+    }
+
 }

@@ -20,6 +20,7 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.junit.After;
@@ -75,6 +76,9 @@ public class ResultSetTest {
         Timer timer = metricRegistry.getTimers().get("java.sql.ResultSet.[select * from metrics_test]");
         assertNotNull(timer);
         assertEquals(1L, timer.getCount());
+        Meter meter = metricRegistry.meter("java.sql.ResultSet.[select * from metrics_test].rows");
+        assertNotNull(meter);
+        assertEquals(11L, meter.getCount());
     }
     @Test
     public void testResultSetUnwrap() throws SQLException {
@@ -89,4 +93,21 @@ public class ResultSetTest {
         
         H2DbUtil.close(resultSet, statement, connection);
     }
+
+
+    @Test
+    public void testResultSet_Direct() throws SQLException {
+        // Act
+        Connection connection = rawDataSource.getConnection();
+        Statement statement = connection.createStatement();
+        String sql = "select * from METRICS_TEST order by ID";
+        ResultSet resultSet = MetricsSql.forRegistry(metricRegistry).wrap(statement.executeQuery(sql), sql);
+
+        H2DbUtil.close(resultSet, statement, connection);
+        // Assert
+        assertNotNull(connection);
+        assertTrue(Proxy.isProxyClass(resultSet.getClass()));
+        assertEquals(1, metricRegistry.getTimers().get("java.sql.ResultSet.[select * from metrics_test order by id]").getCount());
+    }
+
 }

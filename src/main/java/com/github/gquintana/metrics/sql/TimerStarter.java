@@ -47,6 +47,12 @@ class TimerStarter {
         }
         return metricRegistry.timer(name).time();
     }
+    private void markMeter(String name) {
+        if (name == null) {
+            return;
+        }
+        metricRegistry.meter(name).mark();
+    }
 
     private StatementTimerContext startStatementTimer(String name, String sql, String sqlId) {
         return new StatementTimerContext(startTimer(name), sql, sqlId);
@@ -136,5 +142,13 @@ class TimerStarter {
         sqlId = getSqlId(sqlId, sql);
         String name = metricNamingStrategy.getResultSetLifeTimer(sql, sqlId);
         return startStatementTimer(name, sql, sqlId);
+    }
+    /**
+     * Increment when result set row is read
+     */
+    public void markResultSetRowMeter(String sql, String sqlId) {
+        sqlId = getSqlId(sqlId, sql);
+        String name = metricNamingStrategy.getResultSetRowMeter(sql, sqlId);
+        markMeter(name);
     }
 }

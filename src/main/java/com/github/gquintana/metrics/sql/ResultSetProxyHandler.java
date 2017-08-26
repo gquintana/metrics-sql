@@ -32,9 +32,14 @@ import java.sql.ResultSet;
  * @param <T> Proxied ResultSet type
  */
 public class ResultSetProxyHandler<T extends ResultSet> extends JdbcProxyHandler<T> {
+    private final String sql;
+    private final String sqlId;
 
-    public ResultSetProxyHandler(T delegate, Class<T> delegateType, JdbcProxyFactory proxyFactory, Timer.Context lifeTimerContext) {
-        super(delegate, delegateType, proxyFactory, lifeTimerContext);
+    public ResultSetProxyHandler(T delegate, Class<T> delegateType, JdbcProxyFactory proxyFactory, StatementTimerContext lifeTimerContext) {
+        super(delegate, delegateType, proxyFactory, lifeTimerContext.getTimerContext());
+
+        sql = lifeTimerContext.getSql();
+        sqlId = lifeTimerContext.getSqlId();
     }
 
     private static final InvocationFilter THIS_INVOCATION_FILTER = new MethodNamesInvocationFilter("isWrapperFor", "unwrap", "close");
@@ -49,10 +54,17 @@ public class ResultSetProxyHandler<T extends ResultSet> extends JdbcProxyHandler
             result = unwrap(delegatingMethodInvocation);
         } else if (methodName.equals("close")) {
             result = close(delegatingMethodInvocation);
+        } else if (methodName.equals("next")) {
+            result = next(delegatingMethodInvocation);
         } else {
             result = delegatingMethodInvocation.proceed();
         }
         return result;
+    }
+
+    private Object next(MethodInvocation<T> delegatingMethodInvocation) throws Throwable {
+        getTimerStarter().markResultSetRowMeter(sql, sqlId);
+        return delegatingMethodInvocation.proceed();
     }
 
     @Override

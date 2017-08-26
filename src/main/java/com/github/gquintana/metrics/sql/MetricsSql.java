@@ -26,7 +26,7 @@ import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
+import java.sql.*;
 
 /**
  * Metrics SQL initiazing class
@@ -105,13 +105,52 @@ public class MetricsSql {
         }
 
         /**
-         * Wrap an existing {@link Connection} to add connection
+         * Wrap an existing {@link Connection} to add metrics
          *
          * @param connection   {@link Connection} to wrap
          * @return Wrapped {@link Connection}
          */
         public Connection wrap(Connection connection) {
             return build().wrapConnection(connection);
+        }
+        /**
+         * Wrap an existing {@link Statement} to add metrics
+         *
+         * @param statement  {@link Statement} to wrap
+         * @return Wrapped {@link Statement}
+         */
+        public Statement wrap(Statement statement) {
+            return build().wrapStatement(statement);
+        }
+        /**
+         * Wrap an existing {@link PreparedStatement}
+         *
+         * @param statement  {@link PreparedStatement} to add metrics
+         * @param sql SQL
+         * @return Wrapped {@link PreparedStatement}
+         */
+        public PreparedStatement wrap(PreparedStatement statement, String sql) {
+            return build().wrapPreparedStatement(statement, sql);
+        }
+        /**
+         * Wrap an existing {@link CallableStatement} to add metrics
+         *
+         * @param statement  {@link CallableStatement} to wrap
+         * @param sql SQL
+         * @return Wrapped {@link CallableStatement}
+         */
+        public CallableStatement wrap(CallableStatement statement, String sql) {
+            return build().wrapCallableStatement(statement, sql);
+        }
+        /**
+         * Wrap an existing {@link java.sql.ResultSet} to add metrics
+         *
+         * @param statement  {@link java.sql.ResultSet} to wrap
+         * @param sql SQL
+         * @return Wrapped {@link java.sql.ResultSet}
+         */
+        public ResultSet wrap(ResultSet statement, String sql) {
+            return build().wrapResultSet(statement, sql);
         }
     }
 

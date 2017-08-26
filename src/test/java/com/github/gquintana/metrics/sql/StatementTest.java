@@ -39,18 +39,16 @@ import static org.junit.Assert.*;
  */
 public class StatementTest {
     private MetricRegistry metricRegistry;
-    private JdbcProxyFactory proxyFactory;
     private DataSource rawDataSource;
     private DataSource dataSource;
     @Before
     public void setUp() throws SQLException {
         metricRegistry = new MetricRegistry();
-        proxyFactory = new JdbcProxyFactory(metricRegistry);
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        dataSource = proxyFactory.wrapDataSource(rawDataSource);
+        dataSource = MetricsSql.forRegistry(metricRegistry).wrap(rawDataSource);
     }
     @After
     public void tearDown() throws SQLException {
@@ -85,6 +83,21 @@ public class StatementTest {
         assertEquals(1, metricRegistry.getTimers().get("java.sql.Statement.[select * from metrics_test].exec").getCount());
         
     }
+
+    @Test
+    public void testStatementExec_Direct() throws SQLException {
+        // Act
+        Connection connection = rawDataSource.getConnection();
+        Statement statement = MetricsSql.forRegistry(metricRegistry).wrap(connection.createStatement());
+        ResultSet resultSet = statement.executeQuery("select * from METRICS_TEST order by ID");
+
+        H2DbUtil.close(resultSet, statement, connection);
+        // Assert
+        assertNotNull(connection);
+        assertTrue(Proxy.isProxyClass(resultSet.getClass()));
+        assertEquals(1, metricRegistry.getTimers().get("java.sql.Statement.[select * from metrics_test order by id].exec").getCount());
+    }
+
     @Test
     public void testStatementExec_SQLException() throws SQLException {
         // Act

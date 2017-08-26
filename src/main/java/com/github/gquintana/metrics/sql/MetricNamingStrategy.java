@@ -86,12 +86,24 @@ public interface MetricNamingStrategy {
     String getCallableStatementExecuteTimer(String sql, String sqlId);
 
     /**
-     * Get timer name for {@link ResultSet} execution
+     * Get timer name for {@link ResultSet} life
      * @param sql SQL Query
      * @param sqlId SQL Id generated from query or null
      * @return Timer name or null
      */
     String getResultSetLifeTimer(String sql, String sqlId);
 
+    /**
+     * Clean, simplify, hash... SQL query to use it as an SQL identifier in metric name
+     * @param sql SQL Query
+     * @return sqlId SQL Id generated from query
+     */
     String getSqlId(String sql);
+
+    /**
+     * Get meter name for {@link ResultSet} iteration
+     * @param sql SQL Query
+     * @param sqlId SQL Id generated from query or null
+     */
+    String getResultSetRowMeter(String sql, String sqlId);
 }

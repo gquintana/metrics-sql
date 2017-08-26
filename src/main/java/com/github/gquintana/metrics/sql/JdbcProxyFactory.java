@@ -176,11 +176,23 @@ public class JdbcProxyFactory {
      * Wrap a result set to monitor it.
      *
      * @param resultSet set to wrap
+     * @param sql SQL related to Result set
+     * @return Wrapped prepared statement
+     */
+    public ResultSet wrapResultSet(ResultSet resultSet, String sql) {
+        StatementTimerContext lifeTimerContext = timerStarter.startResultSetLifeTimer(sql, null);
+        return (ResultSet) newProxy(new ResultSetProxyHandler(resultSet, getResultSetType(resultSet), this, lifeTimerContext));
+    }
+
+    /**
+     * Wrap a result set to monitor it.
+     *
+     * @param resultSet set to wrap
      * @param lifeTimerContext Started timer
      * @return Wrapped prepared statement
      */
     public ResultSet wrapResultSet(ResultSet resultSet, StatementTimerContext lifeTimerContext) {
-        return (ResultSet) newProxy(new ResultSetProxyHandler(resultSet, getResultSetType(resultSet), this, lifeTimerContext.getTimerContext()));
+        return (ResultSet) newProxy(new ResultSetProxyHandler(resultSet, getResultSetType(resultSet), this, lifeTimerContext));
     }
     /**
      * Determine the interface implemented by this result set
