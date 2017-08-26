@@ -10,3 +10,6 @@ jdk:
     - openjdk7
     - oraclejdk7
     - oraclejdk8
+
+after_success:
+  - mvn clean verify jacoco:report org.eluder.coveralls:coveralls-maven-plugin:report
