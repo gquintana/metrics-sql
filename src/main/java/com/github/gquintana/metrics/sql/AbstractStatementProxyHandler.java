@@ -65,14 +65,10 @@ public abstract class AbstractStatementProxyHandler<T extends Statement> extends
         return THIS_INVOCATION_FILTER;
     }
 
-    protected static void stopTimer(StatementTimerContext timerContext) {
-        stopTimer(timerContext.getTimerContext());
-    }
-
-    protected Object wrapResultSet(StatementTimerContext timerContext, Object result) {
+    protected Object wrapResultSet(Query query, Object result) {
         if (result instanceof ResultSet) {
-            StatementTimerContext timerContext1 = getTimerStarter().startResultSetLifeTimer(timerContext.getSql(), timerContext.getSqlId());
-            return proxyFactory.wrapResultSet((ResultSet) result, timerContext1);
+            Timer.Context timerContext1 = getTimerStarter().startResultSetLifeTimer(query);
+            return proxyFactory.wrapResultSet((ResultSet) result, query, timerContext1);
         } else {
             return result;
         }

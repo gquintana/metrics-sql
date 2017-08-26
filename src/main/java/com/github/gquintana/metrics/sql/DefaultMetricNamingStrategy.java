@@ -26,7 +26,7 @@ import javax.sql.PooledConnection;
 import java.sql.*;
 
 /**
- * Defaut implementation of {@link MetricNamingStrategy}
+ * Default implementation of {@link MetricNamingStrategy}
  */
 public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
     private final String databaseName;
@@ -54,25 +54,14 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
         return "[" + sql.toLowerCase() + "]";
     }
 
-    /**
-     * Start Timer for given Class and names
-     *
-     * @param clazz JDBC Class
-     * @param names Query, event...
-     * @return geted timer
-     */
-    protected String getMetric(Class<?> clazz, String... names) {
-        return MetricRegistry.name(clazz, names);
-    }
-
     protected String getStatementTimer(Class<? extends Statement> clazz, String sql, String sqlId) {
         final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
-        return getMetric(clazz, databaseName, lSqlId);
+        return MetricRegistry.name(clazz, databaseName, lSqlId);
     }
 
     protected String getStatementExecuteTimer(Class<? extends Statement> clazz, String sql, String sqlId) {
         final String lSqlId = sqlId == null ? getSqlId(sql) : sqlId;
-        return getMetric(clazz, databaseName, lSqlId, "exec");
+        return MetricRegistry.name(clazz, databaseName, lSqlId, "exec");
     }
 
     /**
@@ -80,7 +69,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * Example: java.sql.PooledConnection.database
      */
     public String getPooledConnectionLifeTimer() {
-        return getMetric(PooledConnection.class, databaseName);
+        return MetricRegistry.name(PooledConnection.class, databaseName);
     }
 
     /**
@@ -88,7 +77,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * Example: java.sql.Connection.database
      */
     public String getConnectionLifeTimer() {
-        return getMetric(Connection.class, databaseName);
+        return MetricRegistry.name(Connection.class, databaseName);
     }
 
     /**
@@ -96,7 +85,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * Example: java.sql.Statement.database
      */
     public String getStatementLifeTimer() {
-        return getMetric(Statement.class, databaseName);
+        return MetricRegistry.name(Statement.class, databaseName);
     }
 
     /**
@@ -143,7 +132,7 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      * {@inheritDoc}
      */
     public String getResultSetLifeTimer(String sql, String sqlId) {
-        return getMetric(ResultSet.class, databaseName, sqlId);
+        return MetricRegistry.name(ResultSet.class, databaseName, sqlId);
     }
 
     /**
@@ -151,6 +140,6 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
      */
     @Override
     public String getResultSetRowMeter(String sql, String sqlId) {
-        return getMetric(ResultSet.class, databaseName, sqlId, "rows");
+        return MetricRegistry.name(ResultSet.class, databaseName, sqlId, "rows");
     }
 }

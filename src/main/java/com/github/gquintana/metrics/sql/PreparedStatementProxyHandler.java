@@ -31,29 +31,24 @@ import java.sql.PreparedStatement;
  */
 public class PreparedStatementProxyHandler extends AbstractStatementProxyHandler<PreparedStatement> {
 
-    private final String sql;
-    private final String sqlId;
+    private final Query query;
 
-    public PreparedStatementProxyHandler(PreparedStatement delegate, JdbcProxyFactory proxyFactory, StatementTimerContext lifeTimerContext) {
-        super(delegate, PreparedStatement.class, proxyFactory, lifeTimerContext.getTimerContext());
-        this.sql = lifeTimerContext.getSql();
-        this.sqlId = lifeTimerContext.getSqlId();
+    public PreparedStatementProxyHandler(PreparedStatement delegate, JdbcProxyFactory proxyFactory, Query query, Timer.Context lifeTimerContext) {
+        super(delegate, PreparedStatement.class, proxyFactory, lifeTimerContext);
+        this.query = query;
     }
 
     protected final Object execute(MethodInvocation<PreparedStatement> methodInvocation) throws Throwable {
-        final String lSql;
-        final String lSqlId;
+        Query currentQuery;
         if (methodInvocation.getArgCount() > 0) {
-            lSql = methodInvocation.getArgAt(0, String.class);
-            lSqlId = null;
+            currentQuery = new Query(methodInvocation.getArgAt(0, String.class));
         } else {
-            lSql = this.sql;
-            lSqlId = this.sqlId;
+            currentQuery = this.query;
         }
-        StatementTimerContext timerContext = getTimerStarter().startPreparedStatementExecuteTimer(lSql, lSqlId);
+        Timer.Context timerContext = getTimerStarter().startPreparedStatementExecuteTimer(currentQuery);
         Object result = methodInvocation.proceed();
         stopTimer(timerContext);
-        return wrapResultSet(timerContext, result);
+        return wrapResultSet(currentQuery, result);
     }
 
 }

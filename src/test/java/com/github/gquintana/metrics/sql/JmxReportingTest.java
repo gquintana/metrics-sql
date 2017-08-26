@@ -33,7 +33,7 @@ import java.lang.management.ManagementFactory;
 import java.sql.*;
 
 /**
- * Test the integration betwen Metric SQL and the JMX Reporter
+ * Test the integration between Metric SQL and the JMX Reporter
  */
 public class JmxReportingTest {
     private MBeanServer mBeanServer;

@@ -75,7 +75,7 @@ public class MeteringTest {
 
     @Test
     public void testVolume() throws SQLException {
-        final int iterations = 100, inserts = 100, textSize=10; // Increase interations
+        final int iterations = 100, inserts = 100, textSize=10; // Increase iterations
         for (int i = 0; i < iterations; i++) {
             Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("insert into METRICS_TEST(ID, TEXT, CREATED) values (?,?,?)");

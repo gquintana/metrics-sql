@@ -39,11 +39,11 @@ public class StatementProxyHandler extends AbstractStatementProxyHandler<Stateme
     protected Object execute(MethodInvocation<Statement> methodInvocation) throws Throwable {
         Object result;
         if (methodInvocation.getArgCount() > 0) {
-            final String sql = methodInvocation.getArgAt(0, String.class);
-            final StatementTimerContext timerContext = getTimerStarter().startStatementExecuteTimer(sql);
+            Query query = new Query(methodInvocation.getArgAt(0, String.class));
+            Timer.Context timerContext = getTimerStarter().startStatementExecuteTimer(query);
             result = methodInvocation.proceed();
             stopTimer(timerContext);
-            result = wrapResultSet(timerContext, result);
+            result = wrapResultSet(query, result);
         } else {
             result = methodInvocation.proceed();
         }

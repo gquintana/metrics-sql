@@ -3,8 +3,8 @@ package com.github.gquintana.metrics.util;
 import com.codahale.metrics.MetricRegistry;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
 public class MetricRegistryHolderTest {
 
     @Test

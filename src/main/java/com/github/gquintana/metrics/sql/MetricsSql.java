@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 
 /**
- * Metrics SQL initiazing class
+ * Metrics SQL initializing class
  */
 public class MetricsSql {
     /**

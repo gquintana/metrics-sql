@@ -104,6 +104,7 @@ public interface MetricNamingStrategy {
      * Get meter name for {@link ResultSet} iteration
      * @param sql SQL Query
      * @param sqlId SQL Id generated from query or null
+     * @return Timer name or null
      */
     String getResultSetRowMeter(String sql, String sqlId);
 }

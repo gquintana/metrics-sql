@@ -20,24 +20,20 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
-import com.codahale.metrics.Timer;
-
 /**
- * {@link com.codahale.metrics.Timer.Context} and SQL Id couple
+ * SQL Query and SQL Id couple.
  */
-public class StatementTimerContext {
-    private final Timer.Context timerContext;
+public class Query {
     private final String sql;
-    private final String sqlId;
+    private String sqlId;
 
-    public StatementTimerContext(Timer.Context timerContext, String sql, String sqlId) {
-        this.timerContext = timerContext;
+    public Query(String sql) {
         this.sql = sql;
-        this.sqlId = sqlId;
     }
 
-    public Timer.Context getTimerContext() {
-        return timerContext;
+    public Query(String sql, String sqlId) {
+        this.sql = sql;
+        this.sqlId = sqlId;
     }
 
     public String getSql() {
@@ -47,5 +43,10 @@ public class StatementTimerContext {
     public String getSqlId() {
         return sqlId;
     }
-    
+
+    void ensureSqlId(MetricNamingStrategy metricNamingStrategy) {
+        if (sqlId == null) {
+            this.sqlId = metricNamingStrategy.getSqlId(sql);
+        }
+    }
 }

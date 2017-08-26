@@ -82,7 +82,7 @@ public class ProxyHandler<T> implements InvocationHandler {
     public interface InvocationFilter {
 
         /**
-         * Returns true if proxy is intecepting the method, or false is a direct
+         * Returns true if proxy is intercepting the method, or false is a direct
          * call is done
          *
          * @param method Method

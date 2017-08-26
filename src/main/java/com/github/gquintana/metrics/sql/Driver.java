@@ -23,7 +23,6 @@ package com.github.gquintana.metrics.sql;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
 
-import java.lang.reflect.Constructor;
 import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;

@@ -20,7 +20,6 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
-import com.codahale.metrics.MetricRegistry;
 import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 import org.junit.Test;

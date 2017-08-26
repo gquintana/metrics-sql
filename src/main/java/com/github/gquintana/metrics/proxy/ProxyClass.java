@@ -37,12 +37,12 @@ public final class ProxyClass {
     public ProxyClass(ClassLoader classLoader, Class<?>... interfaces) {
         this.classLoader = classLoader;
         this.interfaces = interfaces;
-        // Generate hascode once for all
+        // Generate hashcode once for all
         final Object[] hashValue = new Object[interfaces.length + 1];
         hashValue[0] = classLoader;
         System.arraycopy(interfaces, 0, hashValue, 1, interfaces.length);
         this.hashCode = Objects.hash(hashValue);
-    } // Generate hascode once for all
+    } // Generate hashcode once for all
 
     public ClassLoader getClassLoader() {
         return classLoader;
@@ -72,6 +72,7 @@ public final class ProxyClass {
     }
     /**
      * Create proxy class
+     * @param <T> Expected proxy type
      * @return Class of proxy for given classloader and interfaces
      */
     public <T> Class<T> createClass() {
@@ -81,6 +82,7 @@ public final class ProxyClass {
      * Create proxy constructor
      /**
      * Create proxy class
+     * @param <T> Expected proxy type
      * @return Constructor of proxy for given classloader and interfaces
      */
     public <T> Constructor<T> createConstructor() {

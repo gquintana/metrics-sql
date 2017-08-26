@@ -92,7 +92,7 @@ public class PerformanceTest {
     @Test
     public void testPerformance() throws SQLException {
         Timer timer = metricRegistry.timer(MetricRegistry.name(getClass(), name));
-        final int iterations = 100, inserts=10; // Increase interations
+        final int iterations = 100, inserts=10; // Increase iterations
         for(int i=0;i<iterations;i++) { final
             Timer.Context context = timer.time();
             Connection connection = dataSource.getConnection();

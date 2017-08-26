@@ -24,10 +24,10 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
 /**
- * Start {@link com.codahale.metrics.Timer}s.
+ * Start {@link com.codahale.metrics.Timer}s and increments {@link com.codahale.metrics.Meter}s
  * Internal helper class.
  */
-class TimerStarter {
+class MetricHelper {
     private final MetricRegistry metricRegistry;
     private final MetricNamingStrategy metricNamingStrategy;
 
@@ -36,7 +36,7 @@ class TimerStarter {
      * @param metricRegistry Registry storing metrics
      * @param metricNamingStrategy Strategy to name metrics
      */
-    TimerStarter(MetricRegistry metricRegistry, MetricNamingStrategy metricNamingStrategy) {
+    MetricHelper(MetricRegistry metricRegistry, MetricNamingStrategy metricNamingStrategy) {
         this.metricRegistry = metricRegistry;
         this.metricNamingStrategy = metricNamingStrategy;
     }
@@ -54,10 +54,6 @@ class TimerStarter {
         metricRegistry.meter(name).mark();
     }
 
-    private StatementTimerContext startStatementTimer(String name, String sql, String sqlId) {
-        return new StatementTimerContext(startTimer(name), sql, sqlId);
-    }
-
     public Timer.Context startConnectionTimer() {
         return startTimer(metricNamingStrategy.getConnectionLifeTimer());
     }
@@ -73,13 +69,17 @@ class TimerStarter {
     /**
      * Start Timer when statement is executed
      *
-     * @param sql SQL query
+     * @param query SQL query
      * @return Started timer context or null
      */
-    public StatementTimerContext startStatementExecuteTimer(String sql) {
-        String sqlId = metricNamingStrategy.getSqlId(sql);
-        String name = metricNamingStrategy.getStatementExecuteTimer(sql, sqlId);
-        return startStatementTimer(name, sql, sqlId);
+    public Timer.Context startStatementExecuteTimer(Query query) {
+        ensureSqlId(query);
+        String name = metricNamingStrategy.getStatementExecuteTimer(query.getSql(), query.getSqlId());
+        return startTimer(name);
+    }
+
+    private void ensureSqlId(Query query) {
+        query.ensureSqlId(metricNamingStrategy);
     }
 
     /**
@@ -87,10 +87,10 @@ class TimerStarter {
      *
      * @return Started timer context or null
      */
-    public StatementTimerContext startPreparedStatementLifeTimer(String sql) {
-        String sqlId = metricNamingStrategy.getSqlId(sql);
-        String name = metricNamingStrategy.getPreparedStatementLifeTimer(sql, sqlId);
-        return startStatementTimer(name, sql, sqlId);
+    public Timer.Context startPreparedStatementLifeTimer(Query query) {
+        ensureSqlId(query);
+        String name = metricNamingStrategy.getPreparedStatementLifeTimer(query.getSql(), query.getSqlId());
+        return startTimer(name);
     }
 
     /**
@@ -98,10 +98,10 @@ class TimerStarter {
      *
      * @return Started timer context or null
      */
-    public StatementTimerContext startPreparedStatementExecuteTimer(String sql, String sqlId) {
-        sqlId = getSqlId(sqlId, sql);
-        String name = metricNamingStrategy.getPreparedStatementExecuteTimer(sql, sqlId);
-        return startStatementTimer(name, sql, sqlId);
+    public Timer.Context startPreparedStatementExecuteTimer(Query query) {
+        ensureSqlId(query);
+        String name = metricNamingStrategy.getPreparedStatementExecuteTimer(query.getSql(), query.getSqlId());
+        return startTimer(name);
     }
 
     private String getSqlId(String sqlId, String sql) {
@@ -116,10 +116,10 @@ class TimerStarter {
      *
      * @return Started timer context or null
      */
-    public StatementTimerContext startCallableStatementLifeTimer(String sql) {
-        String sqlId = metricNamingStrategy.getSqlId(sql);
-        String name = metricNamingStrategy.getCallableStatementLifeTimer(sql, sqlId);
-        return startStatementTimer(name, sql, sqlId);
+    public Timer.Context startCallableStatementLifeTimer(Query query) {
+        ensureSqlId(query);
+        String name = metricNamingStrategy.getCallableStatementLifeTimer(query.getSql(), query.getSqlId());
+        return startTimer(name);
     }
 
     /**
@@ -127,10 +127,10 @@ class TimerStarter {
      *
      * @return Started timer context or null
      */
-    public StatementTimerContext startCallableStatementExecuteTimer(String sql, String sqlId) {
-        sqlId = getSqlId(sqlId, sql);
-        String name = metricNamingStrategy.getCallableStatementExecuteTimer(sql, sqlId);
-        return startStatementTimer(name, sql, sqlId);
+    public Timer.Context startCallableStatementExecuteTimer(Query query) {
+        ensureSqlId(query);
+        String name = metricNamingStrategy.getCallableStatementExecuteTimer(query.getSql(), query.getSqlId());
+        return startTimer(name);
     }
 
     /**
@@ -138,17 +138,17 @@ class TimerStarter {
      *
      * @return Started timer context or null
      */
-    public StatementTimerContext startResultSetLifeTimer(String sql, String sqlId) {
-        sqlId = getSqlId(sqlId, sql);
-        String name = metricNamingStrategy.getResultSetLifeTimer(sql, sqlId);
-        return startStatementTimer(name, sql, sqlId);
+    public Timer.Context startResultSetLifeTimer(Query query) {
+        ensureSqlId(query);
+        String name = metricNamingStrategy.getResultSetLifeTimer(query.getSql(), query.getSqlId());
+        return startTimer(name);
     }
     /**
      * Increment when result set row is read
      */
-    public void markResultSetRowMeter(String sql, String sqlId) {
-        sqlId = getSqlId(sqlId, sql);
-        String name = metricNamingStrategy.getResultSetRowMeter(sql, sqlId);
+    public void markResultSetRowMeter(Query query) {
+        ensureSqlId(query);
+        String name = metricNamingStrategy.getResultSetRowMeter(query.getSql(), query.getSqlId());
         markMeter(name);
     }
 }

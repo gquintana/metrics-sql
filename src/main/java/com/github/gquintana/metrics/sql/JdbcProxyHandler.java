@@ -104,7 +104,7 @@ public abstract class JdbcProxyHandler<T> extends ProxyHandler<T> {
         return new ProxyClass(delegate.getClass().getClassLoader(), delegateType);
     }
 
-    protected TimerStarter getTimerStarter() {
-        return proxyFactory.getTimerStarter();
+    protected MetricHelper getTimerStarter() {
+        return proxyFactory.getMetricHelper();
     }
 }
