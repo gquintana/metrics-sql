@@ -21,8 +21,8 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 import com.codahale.metrics.Timer;
-import com.github.gquintana.metrics.util.StaticMetricRegistryHolder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,24 +39,24 @@ import static org.junit.Assert.*;
  * Test Statement wrapper
  */
 public class DriverTest {
-    private MetricRegistry metricRegistry;
-    private static final String URL = H2DbUtil.URL.replaceFirst("jdbc:h2","jdbc:metrics:h2");
+    public static final String URL = H2DbUtil.URL.replaceFirst("jdbc:h2", "jdbc:metrics:h2");
+
     @Before
     public void setUp() throws SQLException {
-        metricRegistry = new MetricRegistry();
-        StaticMetricRegistryHolder.setMetricRegistry(metricRegistry);
         // Load drivers
-        List<java.sql.Driver> drivers = Arrays.asList(new Driver(),new org.h2.Driver());
+        List<java.sql.Driver> drivers = Arrays.asList(new Driver(), new org.h2.Driver());
     }
+
     @Test
     public void testConnectionLife() throws SQLException {
         // Act
-        Connection connection = DriverManager.getConnection(URL, H2DbUtil.USERNAME, H2DbUtil.PASSWORD);
+        Connection connection = DriverManager.getConnection(URL + ";metrics_registry=life", H2DbUtil.USERNAME, H2DbUtil.PASSWORD);
         Statement statement = connection.createStatement();
         H2DbUtil.close(statement, connection);
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(connection.getClass()));
+        MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate("life");
         Timer lifeTimer = metricRegistry.timer("java.sql.Connection");
         assertNotNull(lifeTimer);
         assertThat(lifeTimer.getCount(), equalTo(1L));
@@ -64,21 +64,23 @@ public class DriverTest {
         assertNotNull(getTimer);
         assertThat(getTimer.getCount(), equalTo(1L));
     }
+
     @Test
     public void testStatementExec() throws SQLException {
         // Act
-        Connection connection = DriverManager.getConnection(URL, H2DbUtil.USERNAME, H2DbUtil.PASSWORD);
+        Connection connection = DriverManager.getConnection(URL + ";metrics_registry=exec", H2DbUtil.USERNAME, H2DbUtil.PASSWORD);
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("select CURRENT_DATE");
-        
+
         H2DbUtil.close(resultSet, statement, connection);
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(resultSet.getClass()));
+        MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate("exec");
         assertNotNull(metricRegistry.getTimers().get("java.sql.Statement.[select current_date].exec"));
-        
+
     }
-    
+
     @Test
     public void testGetInfo() throws SQLException {
         // Act
@@ -88,7 +90,7 @@ public class DriverTest {
         assertEquals(3, driver.getMajorVersion());
         assertEquals(1, driver.getMinorVersion());
         Properties properties = new Properties();
-        DriverPropertyInfo[] propertyInfos=driver.getPropertyInfo(URL, properties);
+        DriverPropertyInfo[] propertyInfos = driver.getPropertyInfo(URL, properties);
         assertNotNull(propertyInfos);
         String prefix = driver.getParentLogger().getName();
         assertTrue(getClass().getName().startsWith(prefix));

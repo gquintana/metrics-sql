@@ -20,24 +20,29 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
-import com.github.gquintana.metrics.util.MetricRegistryHolder;
 
+import java.lang.reflect.Constructor;
 import java.sql.*;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
  * Metrics SQL JDBC Driver
  */
-public class Driver implements java.sql.Driver {    
+public class Driver implements java.sql.Driver {
     private static final Driver INSTANCE = new Driver();
     private static boolean registered = false;
     private final Logger parentLogger = Logger.getLogger("com.github.gquintana.metrics");
+
     static {
         register();
     }
+
     private static synchronized void register() {
         try {
             if (!registered) {
@@ -48,33 +53,85 @@ public class Driver implements java.sql.Driver {
             throw new IllegalStateException(e);
         }
     }
-    private static <T> T newInstance(Class<T> clazz) throws SQLException {
+
+    /**
+     * Instantiate a new object of type T
+     *
+     * @param clazz  Object class
+     * @param params Constructor args
+     * @param <T>    Object type
+     * @return New object
+     */
+    private static <T> T newInstance(Class<T> clazz, Object... params) throws SQLException {
         try {
-            return clazz.newInstance();
+            if (params == null || params.length == 0) {
+                return clazz.newInstance();
+            } else {
+                for (Constructor<?> ctor : clazz.getConstructors()) {
+                    if (ctor.getParameterTypes().length != params.length) {
+                        continue;
+                    }
+                    int paramIndex = 0;
+                    for (Class<?> paramType : ctor.getParameterTypes()) {
+                        if (!paramType.isInstance(params[paramIndex])) {
+                            break;
+                        }
+                        paramIndex++;
+                    }
+                    if (paramIndex != params.length) {
+                        continue;
+                    }
+                    @SuppressWarnings("unchecked")
+                    Constructor<T> theCtor = (Constructor<T>) ctor;
+                    return theCtor.newInstance(params);
+                }
+                throw new SQLException("Constructor not found for " + clazz);
+            }
         } catch (ReflectiveOperationException reflectiveOperationException) {
             throw new SQLException(reflectiveOperationException);
         }
     }
+
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (!acceptsURL(url)) {
             return null;
         }
         DriverUrl driverUrl = DriverUrl.parse(url);
+        MetricRegistry registry = getMetricRegistry(driverUrl);
         ProxyFactory factory = newInstance(driverUrl.getProxyFactoryClass());
-        MetricRegistryHolder registryHolder = newInstance(driverUrl.getRegistryHolderClass());
-        MetricNamingStrategy namingStrategy = newInstance(driverUrl.getNamingStrategyClass());
-        JdbcProxyFactory proxyFactory = new JdbcProxyFactory(registryHolder.getMetricRegistry(), namingStrategy, factory);
+        MetricNamingStrategy namingStrategy = getMetricNamingStrategy(driverUrl);
+        JdbcProxyFactory proxyFactory = new JdbcProxyFactory(registry, namingStrategy, factory);
         // Force Driver loading
         Class<? extends Driver> driverClass = driverUrl.getDriverClass();
         // Open connection
         Timer.Context getTimerContext = proxyFactory.getMetricHelper().startConnectionGetTimer();
-        Connection rawConnection=DriverManager.getConnection(driverUrl.getCleanUrl(), info);
+        Connection rawConnection = DriverManager.getConnection(driverUrl.getCleanUrl(), info);
         if (getTimerContext != null) {
             getTimerContext.stop();
         }
         // Wrap connection
         return proxyFactory.wrapConnection(rawConnection);
+    }
+
+    private MetricNamingStrategy getMetricNamingStrategy(DriverUrl driverUrl) throws SQLException {
+        Class<? extends MetricNamingStrategy> namingStrategyClass = driverUrl.getNamingStrategyClass();
+        String databaseName = driverUrl.getDatabaseName();
+        return databaseName == null ? newInstance(namingStrategyClass) : newInstance(namingStrategyClass, databaseName);
+    }
+
+    private MetricRegistry getMetricRegistry(DriverUrl driverUrl) {
+        String registryName = driverUrl.getRegistryName();
+        MetricRegistry registry;
+        if (registryName == null) {
+            registry = SharedMetricRegistries.tryGetDefault();
+            if (registry == null) {
+                registry = SharedMetricRegistries.getOrCreate("default");
+            }
+        } else {
+            registry = SharedMetricRegistries.getOrCreate(registryName);
+        }
+        return registry;
     }
 
     @Override
@@ -108,6 +165,6 @@ public class Driver implements java.sql.Driver {
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return parentLogger;
     }
-    
-    
+
+
 }

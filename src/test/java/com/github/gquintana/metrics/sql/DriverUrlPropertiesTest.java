@@ -34,20 +34,22 @@ public class DriverUrlPropertiesTest {
     public static class CustomMetricNamingStrategy extends DefaultMetricNamingStrategy {
 
     }
+
     @Test
     public void testProperties() {
-        DriverUrl driverUrl = DriverUrl.parse("jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE;metrics_driver=org.h2.Driver;metrics_proxy_factory=cglib;metrics_naming_strategy="+CustomMetricNamingStrategy.class.getName()+";metrics_name=test");
+        DriverUrl driverUrl = DriverUrl.parse("jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE;metrics_driver=org.h2.Driver;metrics_proxy_factory=cglib;metrics_naming_strategy=" + CustomMetricNamingStrategy.class.getName() + ";metrics_database=test");
         assertEquals(CGLibProxyFactory.class, driverUrl.getProxyFactoryClass());
         assertEquals(CustomMetricNamingStrategy.class, driverUrl.getNamingStrategyClass());
-        assertEquals("test", driverUrl.getName());
+        assertEquals("test", driverUrl.getDatabaseName());
         assertEquals(org.h2.Driver.class, driverUrl.getDriverClass());
     }
+
     @Test
     public void testPropertiesDefault() {
         DriverUrl driverUrl = DriverUrl.parse("jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE");
         assertEquals(ReflectProxyFactory.class, driverUrl.getProxyFactoryClass());
         assertEquals(DefaultMetricNamingStrategy.class, driverUrl.getNamingStrategyClass());
-        assertEquals("h2_driver", driverUrl.getName());
+        assertNull(driverUrl.getDatabaseName());
         assertNull(null, driverUrl.getDriverClass());
     }
 }

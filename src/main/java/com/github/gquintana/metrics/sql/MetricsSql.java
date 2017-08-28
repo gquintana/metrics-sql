@@ -23,7 +23,6 @@ package com.github.gquintana.metrics.sql;
 import com.codahale.metrics.MetricRegistry;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
-import com.github.gquintana.metrics.util.MetricRegistryHolder;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -40,10 +39,6 @@ public class MetricsSql {
         private MetricNamingStrategy namingStrategy = new DefaultMetricNamingStrategy();
         private ProxyFactory proxyFactory = new ReflectProxyFactory();
         private JdbcProxyFactory jdbcProxyFactory;
-
-        private Builder(MetricRegistryHolder registryHolder) {
-            this.registry = registryHolder.getMetricRegistry();
-        }
 
         public Builder(MetricRegistry registry) {
             this.registry = registry;
@@ -162,15 +157,5 @@ public class MetricsSql {
      */
     public static Builder forRegistry(MetricRegistry registry) {
         return new Builder(registry);
-    }
-
-    /**
-     * Select Default naming strategy and Metric registry holder
-     *
-     * @param registryHolder Metrics registry provider or holder
-     * @return Builder of {@link JdbcProxyFactory}
-     */
-    public static Builder forRegistryHolder(MetricRegistryHolder registryHolder) {
-        return new Builder(registryHolder);
     }
 }
