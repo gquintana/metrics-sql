@@ -20,6 +20,7 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
+import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.util.MetricRegistryHolder;
 
@@ -60,15 +61,19 @@ public class Driver implements java.sql.Driver {
             return null;
         }
         DriverUrl driverUrl = DriverUrl.parse(url);
-        // Force Driver loading
-        Class<? extends Driver> driverClass = driverUrl.getDriverClass();
-        // Open connection
-        Connection rawConnection=DriverManager.getConnection(driverUrl.getCleanUrl(), info);
-        // Wrap connection
         ProxyFactory factory = newInstance(driverUrl.getProxyFactoryClass());
         MetricRegistryHolder registryHolder = newInstance(driverUrl.getRegistryHolderClass());
         MetricNamingStrategy namingStrategy = newInstance(driverUrl.getNamingStrategyClass());
         JdbcProxyFactory proxyFactory = new JdbcProxyFactory(registryHolder.getMetricRegistry(), namingStrategy, factory);
+        // Force Driver loading
+        Class<? extends Driver> driverClass = driverUrl.getDriverClass();
+        // Open connection
+        Timer.Context getTimerContext = proxyFactory.getMetricHelper().startConnectionGetTimer();
+        Connection rawConnection=DriverManager.getConnection(driverUrl.getCleanUrl(), info);
+        if (getTimerContext != null) {
+            getTimerContext.stop();
+        }
+        // Wrap connection
         return proxyFactory.wrapConnection(rawConnection);
     }
 

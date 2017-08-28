@@ -21,6 +21,7 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -59,8 +62,12 @@ public class DataSourceTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(connection.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection"));
-        
+        Timer lifeTimer = metricRegistry.timer("java.sql.Connection");
+        assertNotNull(lifeTimer);
+        assertThat(lifeTimer.getCount(), equalTo(1L));
+        Timer getTimer = metricRegistry.timer("java.sql.Connection.get");
+        assertNotNull(getTimer);
+        assertThat(getTimer.getCount(), equalTo(1L));
     }
     @Test
     public void testConnectionStatement() throws SQLException {

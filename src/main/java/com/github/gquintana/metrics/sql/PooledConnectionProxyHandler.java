@@ -49,7 +49,9 @@ public class PooledConnectionProxyHandler<T extends PooledConnection> extends Jd
     }
 
     private Connection getConnection(MethodInvocation<T> methodInvocation) throws Throwable {
+        Timer.Context getTimerContext = getTimerStarter().startConnectionGetTimer();
         Connection connection = (Connection) methodInvocation.proceed();
+        stopTimer(getTimerContext);
         connection = proxyFactory.wrapConnection(connection);
         return connection;
     }

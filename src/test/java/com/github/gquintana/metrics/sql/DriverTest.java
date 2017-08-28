@@ -21,6 +21,7 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.util.StaticMetricRegistryHolder;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
 
 /**
@@ -55,8 +57,12 @@ public class DriverTest {
         // Assert
         assertNotNull(connection);
         assertTrue(Proxy.isProxyClass(connection.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection"));
-        
+        Timer lifeTimer = metricRegistry.timer("java.sql.Connection");
+        assertNotNull(lifeTimer);
+        assertThat(lifeTimer.getCount(), equalTo(1L));
+        Timer getTimer = metricRegistry.timer("java.sql.Connection.get");
+        assertNotNull(getTimer);
+        assertThat(getTimer.getCount(), equalTo(1L));
     }
     @Test
     public void testStatementExec() throws SQLException {

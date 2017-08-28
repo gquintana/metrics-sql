@@ -54,8 +54,12 @@ class MetricHelper {
         metricRegistry.meter(name).mark();
     }
 
-    public Timer.Context startConnectionTimer() {
+    public Timer.Context startConnectionLifeTimer() {
         return startTimer(metricNamingStrategy.getConnectionLifeTimer());
+    }
+
+    public Timer.Context startConnectionGetTimer() {
+        return startTimer(metricNamingStrategy.getConnectionGetTimer());
     }
 
     /**

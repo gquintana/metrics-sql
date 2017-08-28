@@ -111,7 +111,7 @@ public class JdbcProxyFactory {
      * @return Wrapped pooled connection
      */
     public PooledConnection wrapPooledConnection(PooledConnection wrappedConnection) {
-        Timer.Context lifeTimerContext = getMetricHelper().startConnectionTimer();
+        Timer.Context lifeTimerContext = getMetricHelper().startConnectionLifeTimer();
         return newProxy(new PooledConnectionProxyHandler<PooledConnection>(wrappedConnection, PooledConnection.class, this, lifeTimerContext));
     }
 
@@ -122,7 +122,7 @@ public class JdbcProxyFactory {
      * @return XA pooled connection
      */
     public XAConnection wrapXAConnection(XAConnection wrappedConnection) {
-        Timer.Context lifeTimerContext = getMetricHelper().startConnectionTimer();
+        Timer.Context lifeTimerContext = getMetricHelper().startConnectionLifeTimer();
         return newProxy(new PooledConnectionProxyHandler<XAConnection>(wrappedConnection, XAConnection.class, this, lifeTimerContext));
     }
 
@@ -133,7 +133,7 @@ public class JdbcProxyFactory {
      * @return Wrapped connection
      */
     public Connection wrapConnection(Connection wrappedConnection) {
-        Timer.Context lifeTimerContext = metricHelper.startConnectionTimer();
+        Timer.Context lifeTimerContext = metricHelper.startConnectionLifeTimer();
         return newProxy(new ConnectionProxyHandler(wrappedConnection, this, lifeTimerContext));
     }
     

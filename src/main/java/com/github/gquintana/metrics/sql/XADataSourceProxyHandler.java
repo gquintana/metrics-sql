@@ -21,6 +21,7 @@ package com.github.gquintana.metrics.sql;
  */
 
 
+import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.MethodInvocation;
 
 import javax.sql.XAConnection;
@@ -48,7 +49,9 @@ public class XADataSourceProxyHandler extends JdbcProxyHandler<XADataSource> {
     }
 
     private XAConnection getXAConnection(MethodInvocation<XADataSource> methodInvocation) throws Throwable {
+        Timer.Context getTimerContext = getTimerStarter().startConnectionGetTimer();
         XAConnection connection = (XAConnection) methodInvocation.proceed();
+        stopTimer(getTimerContext);
         connection = proxyFactory.wrapXAConnection(connection);
         return connection;
     }

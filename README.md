@@ -11,6 +11,7 @@ and measure SQL execution times.
 
 | Description                                                     | Default metric name                                         | Metric type |
 |-----------------------------------------------------------------|-------------------------------------------------------------|-------------|
+| Connection opening (getConnection())                            | `java.sql.Connection                                      ` | Timer       |
 | Connection life (between getConnection() and close())           | `java.sql.Connection                                      ` | Timer       |
 | Statement life (between createStatement() and close())          | `java.sql.Statement                                       ` | Timer       |
 | Statement execution (execute(), executeQuery()...)              | `java.sql.Statement.[select * from my_table].exec         ` | Timer       |

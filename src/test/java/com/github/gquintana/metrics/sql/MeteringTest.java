@@ -108,7 +108,7 @@ public class MeteringTest {
 
         metricsReporter.report(metricRegistry.getGauges(), metricRegistry.getCounters(), metricRegistry.getHistograms(), metricRegistry.getMeters(), metricRegistry.getTimers());
         assertThat(metricRegistry.getTimers().size(), equalTo(
-                1 // connection
+                2 // connection
                 +2 // inserts
                 +5 // statements
                 +3 // prepared statement
@@ -116,6 +116,8 @@ public class MeteringTest {
 
         // connection
         Timer timer = metricRegistry.timer("java.sql.Connection");
+        assertThat(timer.getCount(), equalTo((long) iterations));
+        timer = metricRegistry.timer("java.sql.Connection.get");
         assertThat(timer.getCount(), equalTo((long) iterations));
 
         // statement

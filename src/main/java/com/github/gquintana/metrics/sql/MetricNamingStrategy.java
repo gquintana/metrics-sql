@@ -28,10 +28,10 @@ import java.sql.*;
  */
 public interface MetricNamingStrategy {
     /**
-     * Get timer name for {@link PooledConnection} life
+     * Get timer name for {@link Connection} retrieval
      * @return Timer name or null
      */
-    String getPooledConnectionLifeTimer();
+    String getConnectionGetTimer();
 
     /**
      * Get timer name for {@link Connection} life
