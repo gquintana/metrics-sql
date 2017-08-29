@@ -24,6 +24,7 @@ import com.codahale.metrics.MetricRegistry;
 
 import javax.sql.PooledConnection;
 import java.sql.*;
+import java.util.regex.Pattern;
 
 /**
  * Default implementation of {@link MetricNamingStrategy}
@@ -142,4 +143,32 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
     public String getResultSetRowMeter(String sql, String sqlId) {
         return MetricRegistry.name(ResultSet.class, databaseName, sqlId, "rows");
     }
+
+    /**
+     * Start a builder
+     *
+     * @return Builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder of {@link DefaultMetricNamingStrategy}
+     *
+     * @param <B> Builder type
+     */
+    public static class Builder<B extends Builder<B>> {
+        protected String databaseName;
+
+        public B withDatabaseName(String databaseName) {
+            this.databaseName = databaseName;
+            return (B) this;
+        }
+
+        public DefaultMetricNamingStrategy build() {
+            return new DefaultMetricNamingStrategy(databaseName);
+        }
+    }
+
 }

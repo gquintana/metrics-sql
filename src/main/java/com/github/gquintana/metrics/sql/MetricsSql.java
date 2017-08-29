@@ -71,6 +71,16 @@ public class MetricsSql {
         }
 
         /**
+         * Select strict naming strategy
+         *
+         * @param databaseName Database name for metric naming
+         * @return Current builder
+         */
+        public Builder withStrictNamingStrategy(String databaseName) {
+            return withNamingStrategy(new StrictMetricNamingStrategy.Builder().withDatabaseName(databaseName).build());
+        }
+
+        /**
          * Select factory of proxies
          *
          * @param proxyFactory Strategy to create proxies
