@@ -67,10 +67,10 @@ public class DefaultMetricNamingStrategy implements MetricNamingStrategy {
 
     /**
      * {@inheritDoc}
-     * Example: java.sql.PooledConnection.database
+     * Example: java.sql.Connection.database.get
      */
-    public String getPooledConnectionLifeTimer() {
-        return MetricRegistry.name(PooledConnection.class, databaseName);
+    public String getConnectionGetTimer() {
+        return MetricRegistry.name(Connection.class, databaseName, "get");
     }
 
     /**

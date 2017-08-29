@@ -24,8 +24,6 @@ import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.CachingProxyFactory;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
-import com.github.gquintana.metrics.util.MetricRegistryHolder;
-import com.github.gquintana.metrics.util.StaticMetricRegistryHolder;
 
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -36,7 +34,7 @@ import java.util.regex.Pattern;
  * Parses URL and extract properties
  */
 class DriverUrl {
-    public static final String URL_PREFIX="jdbc:metrics:";
+    public static final String URL_PREFIX = "jdbc:metrics:";
     private final String rawUrl;
     private final String cleanUrl;
     private final String databaseType;
@@ -48,17 +46,19 @@ class DriverUrl {
         this.databaseType = databaseType;
         this.properties = properties;
     }
+
     private static final Pattern PATTERN = Pattern.compile("^jdbc:metrics:(([\\w]+):[^?;]+)(?:([?;])(.*))?$");
+
     private static Properties parseProperties(String urlProps, String propSep, StringBuilder cleanUrlBuilder) {
         Properties properties = new Properties();
-        boolean first=true;
-        for(String sProp:urlProps.split(propSep)) {
+        boolean first = true;
+        for (String sProp : urlProps.split(propSep)) {
             if (sProp.startsWith("metrics_")) {
-                String[] subProp=sProp.split("=");
+                String[] subProp = sProp.split("=");
                 properties.put(subProp[0], subProp[1]);
             } else {
                 if (first) {
-                    first=false;
+                    first = false;
                 } else {
                     cleanUrlBuilder.append(propSep);
                 }
@@ -67,12 +67,13 @@ class DriverUrl {
         }
         return properties;
     }
+
     public static DriverUrl parse(String rawUrl) {
         Matcher matcher = PATTERN.matcher(rawUrl);
         StringBuilder cleanUrlBuilder = new StringBuilder("jdbc:");
         Properties properties = null;
         String dbType;
-		String cleanUrl;
+        String cleanUrl;
         if (matcher.matches()) {
             // mysql://localhost:3306/sakila
             cleanUrlBuilder.append(matcher.group(1));
@@ -81,23 +82,23 @@ class DriverUrl {
             // ? or ;
             String sep = matcher.group(3);
             String sProps = matcher.group(4);
-            if (sep!=null && sProps!=null) {
+            if (sep != null && sProps != null) {
                 cleanUrlBuilder.append(sep);
                 if (sep.equals("?")) {
                     properties = parseProperties(sProps, "&", cleanUrlBuilder);
                 } else if (sep.equals(";")) {
                     properties = parseProperties(sProps, ";", cleanUrlBuilder);
                 }
-				cleanUrl = cleanUrlBuilder.toString();
-				if (cleanUrl.endsWith(sep)) {
-					cleanUrl = cleanUrl.substring(0, cleanUrl.length() - sep.length());
-				}
-            } else{
-				cleanUrl = cleanUrlBuilder.toString();
-			}
+                cleanUrl = cleanUrlBuilder.toString();
+                if (cleanUrl.endsWith(sep)) {
+                    cleanUrl = cleanUrl.substring(0, cleanUrl.length() - sep.length());
+                }
+            } else {
+                cleanUrl = cleanUrlBuilder.toString();
+            }
         } else {
-            throw new IllegalArgumentException("Missing prefix "+URL_PREFIX);
-        } 
+            throw new IllegalArgumentException("Missing prefix " + URL_PREFIX);
+        }
         return new DriverUrl(rawUrl, cleanUrl, dbType, properties);
     }
 
@@ -116,65 +117,89 @@ class DriverUrl {
     public Properties getProperties() {
         return properties;
     }
-    public <T> T getProperty(String key, Class<T> type) {
+
+    public String getProperty(String key) {
         if (properties == null) {
             return null;
         }
-        String sVal = properties.getProperty(key);
-        if (sVal == null) {
-            return null;
-        } else if (type.equals(String.class)) {
-            return type.cast(sVal);
-        } else if (type.equals(Class.class)) {
-            try {
-                return type.cast(Class.forName(sVal));
-            } catch (ClassNotFoundException classNotFoundException) {
-                throw new IllegalArgumentException("Property "+sVal+" is not a valid class", classNotFoundException);
-            }
-        } else {
-            throw new IllegalArgumentException("Property type "+type+" not supported");
-        }
-    }
-    public <T> T getProperty(String key, Class<T> type, T def) {
-        T val = getProperty(key, type);
+        String val = properties.getProperty(key);
         if (val == null) {
-            val = def;           
+            return null;
         }
         return val;
     }
-    public Class<? extends Driver> getDriverClass() {
-        return getProperty("metrics_driver", Class.class);
+
+    public String getProperty(String key, String def) {
+        String val = getProperty(key);
+        if (val == null) {
+            val = def;
+        }
+        return val;
     }
+
+    private static <T> Class<T> toClass(String className) {
+        if (className == null) {
+            return null;
+        }
+        try {
+            @SuppressWarnings("unchecked")
+            Class<T> clazz = (Class<T>) Class.forName(className);
+            return clazz;
+        } catch (ClassNotFoundException classNotFoundException) {
+            throw new IllegalArgumentException("Property " + className + " is not a valid class", classNotFoundException);
+        }
+    }
+
+    public Class<? extends Driver> getDriverClass() {
+        return toClass(getProperty("metrics_driver"));
+    }
+
     public Class<? extends ProxyFactory> getProxyFactoryClass() {
         Class<? extends ProxyFactory> factoryClass;
-        String s = getProperty("metrics_proxy_factory", String.class);
-        if (s==null || s.equals("reflect")) {
-            factoryClass = ReflectProxyFactory.class;
-        } else if (s.equalsIgnoreCase("cglib")) {
-            factoryClass = CGLibProxyFactory.class;
-        } else if (s.equalsIgnoreCase("caching")) {
-            factoryClass = CachingProxyFactory.class;
-        } else {
-            factoryClass = getProperty("metrics_proxy_factory", Class.class);
+        String proxyFactoryName = getProperty("metrics_proxy_factory", "reflect");
+        switch (proxyFactoryName) {
+            case "reflect":
+                factoryClass = ReflectProxyFactory.class;
+                break;
+            case "cglib":
+                factoryClass = CGLibProxyFactory.class;
+                break;
+            case "caching":
+                factoryClass = CachingProxyFactory.class;
+                break;
+            default:
+                factoryClass = toClass(proxyFactoryName);
         }
         return factoryClass;
     }
+
     /**
      * @return Class extending {@link MetricNamingStrategy}
      */
     public Class<? extends MetricNamingStrategy> getNamingStrategyClass() {
-        return getProperty("metrics_naming_strategy", Class.class, DefaultMetricNamingStrategy.class);
+        Class<DefaultMetricNamingStrategy> namingStrategy;
+        String namingStrategyName = getProperty("metrics_naming_strategy", "default");
+        switch (namingStrategyName) {
+            case "default":
+                namingStrategy = DefaultMetricNamingStrategy.class;
+                break;
+            default:
+                namingStrategy = toClass(namingStrategyName);
+        }
+        return namingStrategy;
     }
+
     /**
-     * @return Class extending {@link MetricNamingStrategy}
+     * @return Shared metric registry name
      */
-    public Class<? extends MetricRegistryHolder> getRegistryHolderClass() {
-        return getProperty("metrics_registry_holder", Class.class, StaticMetricRegistryHolder.class);
+    public String getRegistryName() {
+        return getProperty("metrics_registry", null);
     }
+
     /**
      * @return Connection factory name
      */
-    public String getName() {
-        return getProperty("metrics_name", String.class, databaseType+"_driver");
+    public String getDatabaseName() {
+        return getProperty("metrics_database");
     }
 }

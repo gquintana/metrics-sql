@@ -95,45 +95,13 @@ public class JdbcProxyFactory {
     }
 
     /**
-     * Wrap an XA data source to monitor it.
-     *
-     * @param wrappedDataSource XA Data source to wrap
-     * @return Wrapped XA data source
-     */
-    public XADataSource wrapXADataSource(XADataSource wrappedDataSource) {
-        return newProxy(new XADataSourceProxyHandler(wrappedDataSource, this));
-    }
-
-    /**
-     * Wrap a pooled connection to monitor it.
-     *
-     * @param wrappedConnection Pooled connection to wrap
-     * @return Wrapped pooled connection
-     */
-    public PooledConnection wrapPooledConnection(PooledConnection wrappedConnection) {
-        Timer.Context lifeTimerContext = getMetricHelper().startConnectionTimer();
-        return newProxy(new PooledConnectionProxyHandler<PooledConnection>(wrappedConnection, PooledConnection.class, this, lifeTimerContext));
-    }
-
-    /**
-     * Wrap an XA connection to monitor it.
-     *
-     * @param wrappedConnection XA connection to wrap
-     * @return XA pooled connection
-     */
-    public XAConnection wrapXAConnection(XAConnection wrappedConnection) {
-        Timer.Context lifeTimerContext = getMetricHelper().startConnectionTimer();
-        return newProxy(new PooledConnectionProxyHandler<XAConnection>(wrappedConnection, XAConnection.class, this, lifeTimerContext));
-    }
-
-    /**
      * Wrap a connection to monitor it.
      *
      * @param wrappedConnection Connection to wrap
      * @return Wrapped connection
      */
     public Connection wrapConnection(Connection wrappedConnection) {
-        Timer.Context lifeTimerContext = metricHelper.startConnectionTimer();
+        Timer.Context lifeTimerContext = metricHelper.startConnectionLifeTimer();
         return newProxy(new ConnectionProxyHandler(wrappedConnection, this, lifeTimerContext));
     }
     

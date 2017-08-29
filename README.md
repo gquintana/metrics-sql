@@ -11,6 +11,7 @@ and measure SQL execution times.
 
 | Description                                                     | Default metric name                                         | Metric type |
 |-----------------------------------------------------------------|-------------------------------------------------------------|-------------|
+| Connection opening (getConnection())                            | `java.sql.Connection                                      ` | Timer       |
 | Connection life (between getConnection() and close())           | `java.sql.Connection                                      ` | Timer       |
 | Statement life (between createStatement() and close())          | `java.sql.Statement                                       ` | Timer       |
 | Statement execution (execute(), executeQuery()...)              | `java.sql.Statement.[select * from my_table].exec         ` | Timer       |
@@ -63,9 +64,9 @@ jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE;metrics_driver=org.
 The driver supports several options:
 
 * `metrics_driver`: the real driver class to wrap
-* `metrics_registry_holder`: the strategy used to locate the Metric registry: class name implementing `MetricRegistryHolder`, defaults to `StaticMetricRegistryHolder`
+* `metrics_registry`: the name of the shared metric registry to use (see `SharedMetricRegistries`)
 * `metrics_naming_strategy`: the strategy used to generate what should be metered and the timer names: class name implementing `MetricNamingStrategy`
-* `metrics_proxy_factory`: the strategy used to create proxies: either `reflect` (the default), `cglib` or `caching`, 
+* `metrics_proxy_factory`: the strategy used to create proxies: either `reflect` (the default), `cglib` or `caching`,
 
 ## Configuration
 

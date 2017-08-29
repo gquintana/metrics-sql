@@ -72,7 +72,7 @@ public class DriverUrlParseTest {
         assertEquals(rawUrl, driverUrl.getRawUrl());
         assertEquals(cleanUrl, driverUrl.getCleanUrl());
         assertEquals(databaseType, driverUrl.getDatabaseType());
-        String prop=driverUrl.getProperty("metrics_key", String.class);
+        String prop=driverUrl.getProperty("metrics_key");
         assertTrue(prop==null || prop.equals("val"));
     }
     
