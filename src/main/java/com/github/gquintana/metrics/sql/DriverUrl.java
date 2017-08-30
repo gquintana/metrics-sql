@@ -177,11 +177,14 @@ class DriverUrl {
      * @return Class extending {@link MetricNamingStrategy}
      */
     public Class<? extends MetricNamingStrategy> getNamingStrategyClass() {
-        Class<DefaultMetricNamingStrategy> namingStrategy;
+        Class<? extends MetricNamingStrategy> namingStrategy;
         String namingStrategyName = getProperty("metrics_naming_strategy", "default");
         switch (namingStrategyName) {
             case "default":
                 namingStrategy = DefaultMetricNamingStrategy.class;
+                break;
+            case "strict":
+                namingStrategy = StrictMetricNamingStrategy.class;
                 break;
             default:
                 namingStrategy = toClass(namingStrategyName);

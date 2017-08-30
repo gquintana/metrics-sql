@@ -70,11 +70,54 @@ The driver supports several options:
 
 ## Configuration
 
-* *Naming strategy*:  implements `MetricNamingStrategy`, can configure:
+### Naming strategy
+
+The *Naming strategy* implements `MetricNamingStrategy` and can configure:
     * Which operation should be timed (return null means not timed)
     * How the metric is named
-* *Proxy factory*: implements `ProxyFactory`, can configure how JDBC elements are wrapped (simple `java.lang.reflect.Proxy` or CGLib based proxies).
-* *Registry holder*: implements `MetricRegistryHolder`, can configure how the metric registry is resolved.
+
+The `DefaultMetricNamingStrategy` generate metric names like:
+```
+java.sql.Statement.[select * from my_table].exec
+```
+When the database is set,
+```java
+    dataSource = MetricsSql.forRegistry(metricRegistry)
+                    .withDefaultNamingStrategy("my_database")
+                    .wrap(mysqlDataSource);
+```
+It will produce:
+```
+java.sql.Statement.my_database.[select * from my_table].exec
+```
+This is useful when there are multiple datasources.
+
+There is also the `StrictMetricNamingStrategy` which removes also special chars from the SQL query:
+```
+java.sql.Statement.select_from_my_table.exec
+java.sql.Statement.my_database.select_from_my_table.exec
+```
+
+These settings are also available as URL properties:
+```
+jdbc:metrics:h2;metrics_naming_strategy=default;metrics_database=my_database
+```
+
+### Proxy factory 
+
+The *Proxy factory* implements `ProxyFactory`, can configure how JDBC elements are wrapped 
+
+* `ReflectProxyFactory` uses reflection and simple `java.lang.reflect.Proxy`
+* `CGLibProxyFactory`, requires the CGLib library on the classpath and uses CGLib based proxies.
+
+### SharedMetricRegistries
+
+The Driver uses the `SharedMetricRegistries` singleton to lookup (and register) the `MetricRegistry`:
+
+```
+connection = DriverManager.getConnection("jdbc:metrics:h2;metrics_registry=my_registry", "sa", "");
+metryRegistry = SharedMetricRegistries.getOrCreate("my_registry");
+```
 
 ## Integration
 
