@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.gquintana.metrics</groupId>
     <artifactId>metrics-sql</artifactId>
-    <version>3.2.1</version>
+    <version>3.2.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Metrics SQL</name>
 
