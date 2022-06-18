@@ -21,7 +21,13 @@ package com.github.gquintana.metrics.proxy;
  */
 
 
-import net.sf.cglib.proxy.*;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.CallbackFilter;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
+import net.sf.cglib.proxy.LazyLoader;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.util.Map;

@@ -23,25 +23,29 @@ package com.github.gquintana.metrics.sql;
 import com.codahale.metrics.CsvReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.management.MBeanServer;
 import javax.sql.DataSource;
-import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.sql.*;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Test the integration between Metrics SQL and the CSV Reporter
@@ -53,16 +57,17 @@ public class CsvReportingTest {
     private DataSource rawDataSource;
     private DataSource dataSource;
     private CsvReporter csvReporter;
-    @Rule
-    public TemporaryFolder tmpFolderRule = new TemporaryFolder();
-    private File csvFolder;
-    @Before
+    @TempDir
+    public Path tmpFolder;
+    private Path csvFolder;
+    @BeforeEach
     public void setUp() throws SQLException, IOException {
-        csvFolder = tmpFolderRule.newFolder("csv");
+        csvFolder = tmpFolder.resolve("csv");
+		Files.createDirectories(csvFolder);
         mBeanServer=ManagementFactory.getPlatformMBeanServer();
         metricRegistry = new MetricRegistry();
         csvReporter = CsvReporter.forRegistry(metricRegistry)
-                .build(csvFolder);
+                .build(csvFolder.toFile());
         proxyFactory = new JdbcProxyFactory(metricRegistry, new DefaultMetricNamingStrategy("csv"));
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
@@ -70,7 +75,7 @@ public class CsvReportingTest {
         }
         dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
-    @After
+    @AfterEach
     public void tearDown() throws SQLException {
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.dropTable(connection);
@@ -78,7 +83,7 @@ public class CsvReportingTest {
         H2DbUtil.close(dataSource);
     }
     @Test
-    public void testJmxReporting() throws SQLException {
+    public void testJmxReporting() throws SQLException, IOException {
         Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("insert into METRICS_TEST(ID, TEXT, CREATED) values (?,?,?)");
         preparedStatement.setInt(1, 1000);
@@ -97,13 +102,12 @@ public class CsvReportingTest {
         final SortedMap<String, Timer> timers = metricRegistry.getTimers();
         csvReporter.report(metricRegistry.getGauges(), metricRegistry.getCounters(), metricRegistry.getHistograms(), metricRegistry.getMeters(), timers);
         // Check file
-        File[] csvFiles = csvFolder.listFiles();
-        if (csvFiles==null || csvFiles.length==0) {
+        Set<Path> csvFiles = Files.list(csvFolder).filter(Files::isRegularFile).collect(Collectors.toSet());
+        if (csvFiles.isEmpty()) {
             fail("CSV not generated");
         }
-        Set<File> csvFilesSet = new HashSet<>(Arrays.asList(csvFiles));
         for(String timerName:timers.keySet()) {
-            assertTrue(csvFilesSet.contains(new File(csvFolder, timerName+".csv")));
+            assertThat(csvFiles).contains(csvFolder.resolve(timerName+".csv"));
         }
     }
 }

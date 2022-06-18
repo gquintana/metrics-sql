@@ -21,9 +21,9 @@ package com.github.gquintana.metrics.sql;
  */
 
 import com.codahale.metrics.MetricRegistry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Proxy;
@@ -32,7 +32,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Test Statement wrapper
@@ -41,7 +42,7 @@ public class CallableStatementTest {
     private MetricRegistry metricRegistry;
     private DataSource rawDataSource;
     private DataSource dataSource;
-    @Before
+    @BeforeEach
     public void setUp() throws SQLException {
         metricRegistry = new MetricRegistry();
         rawDataSource = H2DbUtil.createDataSource();
@@ -50,7 +51,7 @@ public class CallableStatementTest {
         }
         dataSource = MetricsSql.forRegistry(metricRegistry).wrap(rawDataSource);
     }
-    @After
+    @AfterEach
     public void tearDown() throws SQLException {
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.dropTable(connection);
@@ -64,9 +65,9 @@ public class CallableStatementTest {
         CallableStatement statement = connection.prepareCall("select * from METRICS_TEST");
         H2DbUtil.close(statement, connection);
         // Assert
-        assertNotNull(connection);
-        assertTrue(Proxy.isProxyClass(statement.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test]"));
+        assertThat(connection);
+        assertThat(Proxy.isProxyClass(statement.getClass())).isTrue();
+        assertThat(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test]")).isNotNull();
         
     }
     @Test
@@ -77,22 +78,27 @@ public class CallableStatementTest {
         ResultSet resultSet = statement.executeQuery();        
         H2DbUtil.close(resultSet, statement, connection);
         // Assert
-        assertNotNull(connection);
-        assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test].exec"));
+        assertThat(connection).isNotNull();
+        assertThat(Proxy.isProxyClass(resultSet.getClass())).isTrue();
+        assertThat(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test].exec")).isNotNull();
         
     }
-    @Test(expected = Exception.class)
+    @Test //(expected = Exception.class)
     public void testCallableStatementExecSide() throws SQLException {
         // Act
         Connection connection = dataSource.getConnection();
         CallableStatement statement = connection.prepareCall("select * from METRICS_TEST");
-        ResultSet resultSet = statement.executeQuery("select * from METRICS_TEST order by CREATED desc");        
-        H2DbUtil.close(resultSet, statement, connection);
+		ResultSet resultSet = null;
+		try {
+			resultSet = statement.executeQuery("select * from METRICS_TEST order by CREATED desc");
+			fail("SQLException expected");
+		} catch (SQLException e) {
+
+		}
+		H2DbUtil.close(resultSet, statement, connection);
         // Assert
-        assertNotNull(connection);
-        assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        assertNotNull(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test order by created desc].exec"));
+        assertThat(connection).isNotNull();
+        assertThat(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test order by created desc].exec")).isNotNull();
         
     }
 
@@ -105,9 +111,9 @@ public class CallableStatementTest {
         ResultSet resultSet = statement.executeQuery();
         H2DbUtil.close(resultSet, statement, connection);
         // Assert
-        assertNotNull(connection);
-        assertTrue(Proxy.isProxyClass(resultSet.getClass()));
-        assertEquals(1, metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test order by id].exec").getCount());
+        assertThat(connection).isNotNull();
+        assertThat(Proxy.isProxyClass(resultSet.getClass())).isTrue();
+        assertThat(metricRegistry.getTimers().get("java.sql.CallableStatement.[select * from metrics_test order by id].exec").getCount()).isEqualTo(1);
     }
 
 }

@@ -27,70 +27,68 @@ import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.CachingProxyFactory;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
-import com.github.gquintana.metrics.util.ParametersBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.util.Collection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.stream.Stream;
 
 /**
  * Performance test
  */
-@RunWith(Parameterized.class)
 public class PerformanceTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(PerformanceTest.class);
-    private final String name;
-    private final ProxyFactory factory;
     private MetricRegistry metricRegistry;
     private JdbcProxyFactory proxyFactory;
     private DataSource rawDataSource;
     private DataSource dataSource;
 
-    public PerformanceTest(String name, ProxyFactory factory) {
-        this.name = name;
-        this.factory = factory;
+    public static Stream<Arguments> getParameters() {
+        return Stream.of(
+                Arguments.of("raw", null),
+                Arguments.of("reflect", new ReflectProxyFactory()),
+                Arguments.of("cglib", new CGLibProxyFactory()),
+                Arguments.of("caching",new CachingProxyFactory()),
+                Arguments.of("raw", null)
+                );
     }
-    @Parameterized.Parameters
-    public static Collection<Object[]> getParameters() {
-        return new ParametersBuilder()
-                .add("raw", null)
-                .add("reflect", new ReflectProxyFactory())
-                .add("cglib", new CGLibProxyFactory())
-                .add("caching",new CachingProxyFactory())
-                .add("raw", null)
-                .build();
-    }
-    @Before
+    @BeforeEach
     public void setUp() throws SQLException {
         metricRegistry = new MetricRegistry();
         rawDataSource = H2DbUtil.createDataSource();
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.initTable(connection);
         }
-        if (factory==null) {
-            dataSource = rawDataSource;
-        } else {
-            proxyFactory = MetricsSql.forRegistry(metricRegistry)
-                    .withProxyFactory(factory).build();
-            dataSource = proxyFactory.wrapDataSource(rawDataSource);
-        }
     }
-    @After
+    @AfterEach
     public void tearDown() throws SQLException {
         try(Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.dropTable(connection);
         }
         H2DbUtil.close(dataSource);
     }
-    @Test
-    public void testPerformance() throws SQLException {
+    @ParameterizedTest
+	@MethodSource("getParameters")
+    public void testPerformance(String name, ProxyFactory factory) throws SQLException {
+		if (factory==null) {
+			dataSource = rawDataSource;
+		} else {
+			proxyFactory = MetricsSql.forRegistry(metricRegistry)
+					.withProxyFactory(factory).build();
+			dataSource = proxyFactory.wrapDataSource(rawDataSource);
+		}
         Timer timer = metricRegistry.timer(MetricRegistry.name(getClass(), name));
         final int iterations = 100, inserts=10; // Increase iterations
         for(int i=0;i<iterations;i++) { final

@@ -20,17 +20,22 @@ package com.github.gquintana.metrics.sql;
  * #L%
  */
 
-import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.jmx.JmxReporter;
 import com.github.gquintana.metrics.util.SqlObjectNameFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.management.MBeanServer;
 import javax.sql.DataSource;
 import java.lang.management.ManagementFactory;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 
 /**
  * Test the integration between Metric SQL and the JMX Reporter
@@ -43,7 +48,7 @@ public class JmxReportingTest {
     private DataSource dataSource;
     private JmxReporter jmxReporter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws SQLException {
         mBeanServer=ManagementFactory.getPlatformMBeanServer();
         metricRegistry = new MetricRegistry();
@@ -59,7 +64,7 @@ public class JmxReportingTest {
         }
         dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
-    @After
+    @AfterEach
     public void tearDown() throws SQLException {
         jmxReporter.stop();
         try(Connection connection = rawDataSource.getConnection()) {

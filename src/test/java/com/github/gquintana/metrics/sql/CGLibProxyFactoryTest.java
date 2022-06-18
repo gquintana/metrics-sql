@@ -22,13 +22,13 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
 import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration test between {@link CGLibProxyFactory} and {@link JdbcProxyFactory}
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNotNull;
 public class CGLibProxyFactoryTest {
     private MetricRegistry metricRegistry;
     private JdbcProxyFactory proxyFactory;
-    @Before
+    @BeforeEach
     public void setUp() {
         metricRegistry = new MetricRegistry();
         CGLibProxyFactory factory = new CGLibProxyFactory();
@@ -50,8 +50,8 @@ public class CGLibProxyFactoryTest {
         Connection connection = proxyFactory.wrapConnection(H2DbUtil.openConnection());
         H2DbUtil.close(connection);
         // Assert
-        assertNotNull(connection);
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Connection"));
+        assertThat(connection).isNotNull();
+        assertThat(metricRegistry.getTimers().get("java.sql.Connection")).isNotNull();
         
     }
    

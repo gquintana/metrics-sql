@@ -26,9 +26,18 @@ import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
 
-import javax.sql.*;
-import javax.sql.rowset.*;
-import java.sql.*;
+import javax.sql.DataSource;
+import javax.sql.RowSet;
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.FilteredRowSet;
+import javax.sql.rowset.JdbcRowSet;
+import javax.sql.rowset.JoinRowSet;
+import javax.sql.rowset.WebRowSet;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * Factory of {@code JdbcProxyHandler} sub classes, central class of Metrics SQL.

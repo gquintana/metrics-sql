@@ -7,7 +7,6 @@ addons:
   hostname: metricssql
 
 jdk:
-    - openjdk7
     - oraclejdk8
 
 after_success:

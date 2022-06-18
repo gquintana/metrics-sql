@@ -23,17 +23,21 @@ package com.github.gquintana.metrics.sql;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
 import com.codahale.metrics.Timer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test Statement wrapper
@@ -41,7 +45,7 @@ import static org.junit.Assert.*;
 public class DriverTest {
     public static final String URL = H2DbUtil.URL.replaceFirst("jdbc:h2", "jdbc:metrics:h2");
 
-    @Before
+    @BeforeEach
     public void setUp() throws SQLException {
         // Load drivers
         List<java.sql.Driver> drivers = Arrays.asList(new Driver(), new org.h2.Driver());
@@ -54,15 +58,15 @@ public class DriverTest {
         Statement statement = connection.createStatement();
         H2DbUtil.close(statement, connection);
         // Assert
-        assertNotNull(connection);
-        assertTrue(Proxy.isProxyClass(connection.getClass()));
+        assertThat(connection).isNotNull();
+        assertThat(Proxy.isProxyClass(connection.getClass())).isTrue();
         MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate("life");
         Timer lifeTimer = metricRegistry.timer("java.sql.Connection");
-        assertNotNull(lifeTimer);
-        assertThat(lifeTimer.getCount(), equalTo(1L));
+        assertThat(lifeTimer).isNotNull();
+        assertThat(lifeTimer.getCount()).isEqualTo(1L);
         Timer getTimer = metricRegistry.timer("java.sql.Connection.get");
-        assertNotNull(getTimer);
-        assertThat(getTimer.getCount(), equalTo(1L));
+        assertThat(getTimer).isNotNull();
+        assertThat(getTimer.getCount()).isEqualTo(1L);
     }
 
     @Test
@@ -74,10 +78,10 @@ public class DriverTest {
 
         H2DbUtil.close(resultSet, statement, connection);
         // Assert
-        assertNotNull(connection);
-        assertTrue(Proxy.isProxyClass(resultSet.getClass()));
+        assertThat(connection).isNotNull();
+        assertThat(Proxy.isProxyClass(resultSet.getClass())).isTrue();
         MetricRegistry metricRegistry = SharedMetricRegistries.getOrCreate("exec");
-        assertNotNull(metricRegistry.getTimers().get("java.sql.Statement.[select current_date].exec"));
+        assertThat(metricRegistry.getTimers().get("java.sql.Statement.[select current_date].exec")).isNotNull();
 
     }
 
@@ -86,14 +90,14 @@ public class DriverTest {
         // Act
         java.sql.Driver driver = DriverManager.getDriver(URL);
         // Assert
-        assertTrue(driver instanceof Driver);
-        assertEquals(3, driver.getMajorVersion());
-        assertEquals(1, driver.getMinorVersion());
+        assertThat(driver instanceof Driver).isTrue();
+        assertThat(driver.getMajorVersion()).isEqualTo(3);
+        assertThat(driver.getMinorVersion()).isEqualTo(1);
         Properties properties = new Properties();
         DriverPropertyInfo[] propertyInfos = driver.getPropertyInfo(URL, properties);
-        assertNotNull(propertyInfos);
+        assertThat(propertyInfos).isNotNull();
         String prefix = driver.getParentLogger().getName();
-        assertTrue(getClass().getName().startsWith(prefix));
-        assertTrue(driver.jdbcCompliant());
+        assertThat(getClass().getName().startsWith(prefix)).isTrue();
+        assertThat(driver.jdbcCompliant()).isTrue();
     }
 }

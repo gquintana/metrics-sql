@@ -1,28 +1,25 @@
 package com.github.gquintana.metrics.sql;
 
-import com.github.gquintana.metrics.sql.DefaultMetricNamingStrategy;
-import com.github.gquintana.metrics.sql.StrictMetricNamingStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultMetricNamingStrategyTest {
 
     @Test
-    public void testDefault() throws Exception {
+    public void testDefault()  {
         // Given
         DefaultMetricNamingStrategy namingStrategy = new DefaultMetricNamingStrategy();
         // When
         String sqlId = namingStrategy.getSqlId("select * from METRICS_TEST order by ID");
         String connectionLifeTimer = namingStrategy.getConnectionLifeTimer();
         // Then
-        assertThat(sqlId, equalTo("[select * from metrics_test order by id]"));
-        assertThat(connectionLifeTimer, equalTo("java.sql.Connection"));
+        assertThat(sqlId).isEqualTo("[select * from metrics_test order by id]");
+        assertThat(connectionLifeTimer).isEqualTo("java.sql.Connection");
     }
 
     @Test
-    public void testDatabase() throws Exception {
+    public void testDatabase()  {
         // Given
         DefaultMetricNamingStrategy namingStrategy = DefaultMetricNamingStrategy.builder()
                 .withDatabaseName("test")
@@ -31,7 +28,7 @@ public class DefaultMetricNamingStrategyTest {
         String sqlId = namingStrategy.getSqlId("select * from METRICS_TEST order by ID");
         String connectionLifeTimer = namingStrategy.getConnectionLifeTimer();
         // Then
-        assertThat(sqlId, equalTo("[select * from metrics_test order by id]"));
-        assertThat(connectionLifeTimer, equalTo("java.sql.Connection.test"));
+        assertThat(sqlId).isEqualTo("[select * from metrics_test order by id]");
+        assertThat(connectionLifeTimer).isEqualTo("java.sql.Connection.test");
     }
 }

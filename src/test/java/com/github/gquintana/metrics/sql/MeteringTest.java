@@ -25,18 +25,22 @@ import com.codahale.metrics.Slf4jReporter;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Random;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Metering test
@@ -49,7 +53,7 @@ public class MeteringTest {
     private DataSource dataSource;
     private Slf4jReporter metricsReporter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws SQLException {
         metricRegistry = new MetricRegistry();
         metricsReporter = Slf4jReporter.forRegistry(metricRegistry)
@@ -65,7 +69,7 @@ public class MeteringTest {
         dataSource = proxyFactory.wrapDataSource(rawDataSource);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws SQLException {
         try (Connection connection = rawDataSource.getConnection()) {
             H2DbUtil.dropTable(connection);
@@ -91,7 +95,7 @@ public class MeteringTest {
             ResultSet resultSet = statement.executeQuery("select count(*) from METRICS_TEST");
             if (resultSet.next()) {
                 int count = resultSet.getInt(1);
-                assertThat(count, greaterThanOrEqualTo(i*inserts));
+                assertThat(count).isGreaterThanOrEqualTo(i*inserts);
             }
             H2DbUtil.close(resultSet);
 
@@ -107,46 +111,46 @@ public class MeteringTest {
         }
 
         metricsReporter.report(metricRegistry.getGauges(), metricRegistry.getCounters(), metricRegistry.getHistograms(), metricRegistry.getMeters(), metricRegistry.getTimers());
-        assertThat(metricRegistry.getTimers().size(), equalTo(
+        assertThat(metricRegistry.getTimers().size()).isEqualTo(
                 2 // connection
                 +2 // inserts
                 +5 // statements
                 +3 // prepared statement
-                ));
+                );
 
         // connection
         Timer timer = metricRegistry.timer("java.sql.Connection");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
         timer = metricRegistry.timer("java.sql.Connection.get");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
 
         // statement
         timer = metricRegistry.timer("java.sql.Statement");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
         timer = metricRegistry.timer("java.sql.Statement.[select count(*) from metrics_test].exec");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
         timer = metricRegistry.timer("java.sql.Statement.[select * from metrics_test order by id asc].exec");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
 
         // prepared statement
         timer = metricRegistry.timer("java.sql.PreparedStatement.[insert into metrics_test(id, text, created) values (?,?,?)].exec");
-        assertThat(timer.getCount(), equalTo((long) iterations * inserts));
+        assertThat(timer.getCount()).isEqualTo(iterations * inserts);
 
         timer = metricRegistry.timer("java.sql.PreparedStatement.[insert into metrics_test(id, text, created) values (?,?,?)]");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
 
         timer = metricRegistry.timer("java.sql.PreparedStatement.[select * from metrics_test where text=? order by id asc].exec");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
         Snapshot timerSnapshot = timer.getSnapshot();
         double preparedStatementExecMean = timerSnapshot.getMean();
-        assertThat(preparedStatementExecMean, greaterThan(0.0));
-        assertThat(timerSnapshot.getMax(), greaterThan(0L));
-        assertThat(timerSnapshot.getMax(), greaterThan(timerSnapshot.getMin()));
+        assertThat(preparedStatementExecMean).isGreaterThan(0.0);
+        assertThat(timerSnapshot.getMax()).isGreaterThan(0L);
+        assertThat(timerSnapshot.getMax()).isGreaterThan(timerSnapshot.getMin());
 
         timer = metricRegistry.timer("java.sql.PreparedStatement.[select * from metrics_test where text=? order by id asc]");
-        assertThat(timer.getCount(), equalTo((long) iterations));
+        assertThat(timer.getCount()).isEqualTo(iterations);
         timerSnapshot = timer.getSnapshot();
-        assertThat(timerSnapshot.getMean(), greaterThan(preparedStatementExecMean));
+        assertThat(timerSnapshot.getMean()).isGreaterThan(preparedStatementExecMean);
 
     }
 
@@ -158,7 +162,7 @@ public class MeteringTest {
         }
     }
 
-    private Random random = new Random();
+    private final Random random = new Random();
     private String randomString(int size) {
         return Integer.toHexString(random.nextInt(size));
     }

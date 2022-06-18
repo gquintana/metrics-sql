@@ -9,9 +9,9 @@ package com.github.gquintana.metrics.proxy;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,23 +20,23 @@ package com.github.gquintana.metrics.proxy;
  * #L%
  */
 
-import com.github.gquintana.metrics.util.ParametersBuilder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
-@RunWith(Parameterized.class)
 public class ProxyFactoryTest {
-	private final ProxyFactory proxyFactory;
-	private final Dummy dummy;
-	private final DummyProxyHandler dummyProxyHandler;
+	private final DummyProxyHandler dummyProxyHandler=new DummyProxyHandler(new DummyImpl());
+
+	private Dummy getDummy(ProxyFactory proxyFactory) {
+		return proxyFactory.newProxy(dummyProxyHandler, new ProxyClass(Dummy.class.getClassLoader(), Dummy.class));
+	}
 
 	private static class DummyProxyHandler extends ProxyHandler<Dummy> {
 		private final List<MethodInvocation<Dummy>> methodInvocations = new ArrayList<>();
@@ -56,40 +56,43 @@ public class ProxyFactoryTest {
 		}
 	}
 
+	/*
 	public ProxyFactoryTest(ProxyFactory proxyFactory) {
 		this.proxyFactory = proxyFactory;
 		dummyProxyHandler = new DummyProxyHandler(new DummyImpl());
-		dummy = proxyFactory.newProxy(dummyProxyHandler, new ProxyClass(Dummy.class.getClassLoader(), Dummy.class));
+
+	}
+	*/
+
+	public static Stream<Arguments> getParameters() {
+		return Stream.of(
+						new ReflectProxyFactory(),
+						new CGLibProxyFactory(),
+						new CachingProxyFactory())
+				.map(Arguments::of);
 	}
 
-	@Parameterized.Parameters
-	public static Collection<Object[]> getParameters() {
-		return new ParametersBuilder()
-				.add(new ReflectProxyFactory())
-				.add(new CGLibProxyFactory())
-				.add(new CachingProxyFactory())
-				.build();
-	}
-
-	@Test
-	public void testWork() {
+	@ParameterizedTest
+	@MethodSource("getParameters")
+	public void testWork(ProxyFactory proxyFactory) {
 		// Act
-		String result = dummy.work("input");
+		String result = getDummy(proxyFactory).work("input");
 		// Assert
-		assertEquals(1, dummyProxyHandler.getMethodInvocations().size());
-		assertEquals("[input]", result);
+		assertThat(dummyProxyHandler.getMethodInvocations().size()).isEqualTo(1);
+		assertThat(result).isEqualTo("[input]");
 	}
 
-	@Test
-	public void testFail() {
+	@ParameterizedTest
+	@MethodSource("getParameters")
+	public void testFail(ProxyFactory proxyFactory) {
 		try {
 			// Act
-			dummy.fail("error");
+			getDummy(proxyFactory).fail("error");
 			fail("RuntimeException expected");
 		} catch (RuntimeException e) {
 			// Assert
-			assertEquals(1, dummyProxyHandler.getMethodInvocations().size());
-			assertEquals("error", e.getMessage());
+			assertThat(dummyProxyHandler.getMethodInvocations().size()).isEqualTo(1);
+			assertThat(e.getMessage()).isEqualTo("error");
 		}
 	}
 

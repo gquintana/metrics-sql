@@ -22,9 +22,11 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
 
-import javax.sql.PooledConnection;
-import java.sql.*;
-import java.util.regex.Pattern;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * Default implementation of {@link MetricNamingStrategy}

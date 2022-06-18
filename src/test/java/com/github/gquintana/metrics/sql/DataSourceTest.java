@@ -22,9 +22,9 @@ package com.github.gquintana.metrics.sql;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Proxy;
@@ -33,10 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test DataSource wrapper
@@ -44,13 +41,13 @@ import static org.junit.Assert.assertTrue;
 public class DataSourceTest {
     private MetricRegistry metricRegistry;
     private DataSource dataSource;
-    @Before
+    @BeforeEach
     public void setUp() {
         metricRegistry = new MetricRegistry();
         dataSource = MetricsSql.forRegistry(metricRegistry)
                 .wrap(H2DbUtil.createDataSource());
     }
-    @After
+    @AfterEach
     public void tearDown() {
         H2DbUtil.close(dataSource);
     }
@@ -60,14 +57,14 @@ public class DataSourceTest {
         Connection connection = dataSource.getConnection();
         H2DbUtil.close(connection);
         // Assert
-        assertNotNull(connection);
-        assertTrue(Proxy.isProxyClass(connection.getClass()));
+        assertThat(connection).isNotNull();
+        assertThat(Proxy.isProxyClass(connection.getClass())).isTrue();
         Timer lifeTimer = metricRegistry.timer("java.sql.Connection");
-        assertNotNull(lifeTimer);
-        assertThat(lifeTimer.getCount(), equalTo(1L));
+        assertThat(lifeTimer).isNotNull();
+        assertThat(lifeTimer.getCount()).isEqualTo(1L);
         Timer getTimer = metricRegistry.timer("java.sql.Connection.get");
-        assertNotNull(getTimer);
-        assertThat(getTimer.getCount(), equalTo(1L));
+        assertThat(getTimer).isNotNull();
+        assertThat(getTimer.getCount()).isEqualTo(1L);
     }
     @Test
     public void testConnectionStatement() throws SQLException {
@@ -77,7 +74,7 @@ public class DataSourceTest {
         PreparedStatement preparedStatement = connection.prepareCall("select 1 from dual");
         H2DbUtil.close(preparedStatement, statement, connection);
         // Assert
-        assertTrue(Proxy.isProxyClass(statement.getClass()));
-        assertTrue(Proxy.isProxyClass(preparedStatement.getClass()));
+        assertThat(Proxy.isProxyClass(statement.getClass())).isTrue();
+        assertThat(Proxy.isProxyClass(preparedStatement.getClass())).isTrue();
     }
 }

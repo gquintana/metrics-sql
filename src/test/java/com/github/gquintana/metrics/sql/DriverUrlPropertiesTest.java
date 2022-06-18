@@ -22,10 +22,9 @@ package com.github.gquintana.metrics.sql;
 
 import com.github.gquintana.metrics.proxy.CGLibProxyFactory;
 import com.github.gquintana.metrics.proxy.ReflectProxyFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
@@ -38,18 +37,18 @@ public class DriverUrlPropertiesTest {
     @Test
     public void testProperties() {
         DriverUrl driverUrl = DriverUrl.parse("jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE;metrics_driver=org.h2.Driver;metrics_proxy_factory=cglib;metrics_naming_strategy=" + CustomMetricNamingStrategy.class.getName() + ";metrics_database=test");
-        assertEquals(CGLibProxyFactory.class, driverUrl.getProxyFactoryClass());
-        assertEquals(CustomMetricNamingStrategy.class, driverUrl.getNamingStrategyClass());
-        assertEquals("test", driverUrl.getDatabaseName());
-        assertEquals(org.h2.Driver.class, driverUrl.getDriverClass());
+        assertThat(driverUrl.getProxyFactoryClass()).isEqualTo(CGLibProxyFactory.class);
+        assertThat(driverUrl.getNamingStrategyClass()).isEqualTo(CustomMetricNamingStrategy.class);
+        assertThat(driverUrl.getDatabaseName()).isEqualTo("test");
+        assertThat(driverUrl.getDriverClass()).isEqualTo(org.h2.Driver.class);
     }
 
     @Test
     public void testPropertiesDefault() {
         DriverUrl driverUrl = DriverUrl.parse("jdbc:metrics:h2:~/test;AUTO_SERVER=TRUE;;AUTO_RECONNECT=TRUE");
-        assertEquals(ReflectProxyFactory.class, driverUrl.getProxyFactoryClass());
-        assertEquals(DefaultMetricNamingStrategy.class, driverUrl.getNamingStrategyClass());
-        assertNull(driverUrl.getDatabaseName());
-        assertNull(null, driverUrl.getDriverClass());
+        assertThat(driverUrl.getProxyFactoryClass()).isEqualTo(ReflectProxyFactory.class);
+        assertThat(driverUrl.getNamingStrategyClass()).isEqualTo(DefaultMetricNamingStrategy.class);
+        assertThat(driverUrl.getDatabaseName()).isNull();
+        assertThat(driverUrl.getDriverClass()).isNull();
     }
 }

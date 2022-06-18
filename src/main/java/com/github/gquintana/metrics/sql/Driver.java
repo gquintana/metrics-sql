@@ -26,8 +26,11 @@ import com.codahale.metrics.Timer;
 import com.github.gquintana.metrics.proxy.ProxyFactory;
 
 import java.lang.reflect.Constructor;
-import java.sql.*;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -135,7 +138,7 @@ public class Driver implements java.sql.Driver {
     }
 
     @Override
-    public boolean acceptsURL(String url) throws SQLException {
+    public boolean acceptsURL(String url) {
         return url != null && url.startsWith(DriverUrl.URL_PREFIX);
     }
 
@@ -162,7 +165,7 @@ public class Driver implements java.sql.Driver {
     }
 
     @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    public Logger getParentLogger() {
         return parentLogger;
     }
 
